@@ -65,7 +65,7 @@ class MatriculaServiceTest {
         aluno.setUuid(UUID.randomUUID());
         aluno.setNome("Maria Silva");
         aluno.setEmail("maria@email.com");
-        aluno.setCpf("12345678901");
+        aluno.setCpf("52998224725");
         aluno.setDataNascimento(LocalDate.of(2000, 1, 1));
 
         turma = new Turma();

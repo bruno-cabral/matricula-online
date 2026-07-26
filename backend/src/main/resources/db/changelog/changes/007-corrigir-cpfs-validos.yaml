@@ -1,0 +1,31 @@
+databaseChangeLog:
+  - changeSet:
+      id: 007-corrigir-cpfs-validos
+      author: matricula-online
+      comment: Atualiza CPFs do seed para valores com digitos verificadores validos
+      changes:
+        - update:
+            tableName: aluno
+            columns:
+              - column: { name: cpf, value: "52998224725" }
+            where: uuid = '22222222-2222-2222-2222-222222222201'
+        - update:
+            tableName: aluno
+            columns:
+              - column: { name: cpf, value: "39053344705" }
+            where: uuid = '22222222-2222-2222-2222-222222222202'
+        - update:
+            tableName: aluno
+            columns:
+              - column: { name: cpf, value: "11144477735" }
+            where: uuid = '22222222-2222-2222-2222-222222222203'
+        - update:
+            tableName: aluno
+            columns:
+              - column: { name: cpf, value: "84756542158" }
+            where: uuid = '22222222-2222-2222-2222-222222222204'
+        - update:
+            tableName: aluno
+            columns:
+              - column: { name: cpf, value: "71428793860" }
+            where: uuid = '22222222-2222-2222-2222-222222222205'

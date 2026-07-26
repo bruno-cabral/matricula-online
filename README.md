@@ -233,7 +233,6 @@ As regras de matricula sao testadas em dois niveis:
 - Frontend sem testes automatizados (priorizados os testes do backend por serem criticos na avaliacao).
 - Sem CI/CD configurado (diferencial D01).
 - Sem eventos de dominio (diferencial D04).
-- A validacao de CPF e simplificada (apenas verifica tamanho, sem digito verificador).
 - Sem tratamento de soft delete em cascata (deletar entidades com dependencias pode falhar).
 
 ## Uso de IA

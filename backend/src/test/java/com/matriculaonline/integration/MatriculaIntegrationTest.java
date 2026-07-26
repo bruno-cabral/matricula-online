@@ -69,7 +69,7 @@ class MatriculaIntegrationTest {
         aluno = new Aluno();
         aluno.setNome("Carlos Oliveira");
         aluno.setEmail("carlos@email.com");
-        aluno.setCpf("11111111111");
+        aluno.setCpf("11144477735");
         aluno.setDataNascimento(LocalDate.of(2000, 5, 15));
         aluno = alunoRepository.save(aluno);
 

@@ -1,5 +1,6 @@
 package com.matriculaonline.dto.request;
 
+import com.matriculaonline.validation.Cpf;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 
@@ -13,7 +14,7 @@ public record AlunoRequest(
         String email,
 
         @NotBlank(message = "CPF e obrigatorio")
-        @Size(min = 11, max = 14, message = "CPF deve ter entre 11 e 14 caracteres")
+        @Cpf
         String cpf,
 
         @NotNull(message = "Data de nascimento e obrigatoria")

@@ -44,7 +44,7 @@ class AlunoIntegrationTest {
     void crudCompletoAluno() {
         // CREATE
         AlunoRequest createRequest = new AlunoRequest(
-                "Ana Santos", "ana@email.com", "99988877766", LocalDate.of(1999, 3, 20));
+                "Ana Santos", "ana@email.com", "12345678909", LocalDate.of(1999, 3, 20));
 
         ResponseEntity<AlunoResponse> createResponse = restTemplate.postForEntity(
                 "/api/alunos", createRequest, AlunoResponse.class);
@@ -65,7 +65,7 @@ class AlunoIntegrationTest {
 
         // UPDATE
         AlunoRequest updateRequest = new AlunoRequest(
-                "Ana Santos Silva", "ana.silva@email.com", "99988877766", LocalDate.of(1999, 3, 20));
+                "Ana Santos Silva", "ana.silva@email.com", "12345678909", LocalDate.of(1999, 3, 20));
 
         ResponseEntity<AlunoResponse> updateResponse = restTemplate.exchange(
                 "/api/alunos/{uuid}", HttpMethod.PUT,
@@ -111,5 +111,18 @@ class AlunoIntegrationTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).contains("nome");
         assertThat(response.getBody()).contains("email");
+    }
+
+    @Test
+    @DisplayName("CPF com digito verificador invalido retorna HTTP 400")
+    void validacaoCpfInvalido() {
+        AlunoRequest invalidRequest = new AlunoRequest(
+                "Ana Santos", "ana@email.com", "12345678901", LocalDate.of(1999, 3, 20));
+
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                "/api/alunos", invalidRequest, String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).contains("CPF");
     }
 }

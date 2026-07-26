@@ -6,11 +6,12 @@ import { AlunoService } from '../../../services/aluno.service';
 import { NotificationService } from '../../../services/notification.service';
 import { handleApiError } from '../../../services/api-error-handler';
 import { AlunoRequest } from '../../../models/aluno.model';
+import { CpfValidatorDirective } from '../../../directives/cpf-validator.directive';
 
 @Component({
   selector: 'app-aluno-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, CpfValidatorDirective],
   template: `
     <div class="page-header">
       <h2>{{ isEditing ? 'Editar Aluno' : 'Novo Aluno' }}</h2>
@@ -40,10 +41,13 @@ import { AlunoRequest } from '../../../models/aluno.model';
         <div class="form-row">
           <div class="form-group">
             <label for="cpf">CPF</label>
-            <input id="cpf" type="text" [(ngModel)]="aluno.cpf" name="cpf" required minlength="11" maxlength="14"
+            <input id="cpf" type="text" [(ngModel)]="aluno.cpf" name="cpf" required cpfValidator
+                   maxlength="14"
                    [class.invalid]="cpfField.invalid && cpfField.touched" #cpfField="ngModel">
-            @if (cpfField.invalid && cpfField.touched) {
-              <span class="error-msg">CPF e obrigatorio (11-14 caracteres)</span>
+            @if (cpfField.errors?.['required'] && cpfField.touched) {
+              <span class="error-msg">CPF e obrigatorio</span>
+            } @else if (cpfField.errors?.['cpf'] && cpfField.touched) {
+              <span class="error-msg">CPF invalido</span>
             }
           </div>
           <div class="form-group">

@@ -41,12 +41,12 @@ class AlunoServiceTest {
         aluno.setUuid(UUID.randomUUID());
         aluno.setNome("Maria Silva");
         aluno.setEmail("maria@email.com");
-        aluno.setCpf("12345678901");
+        aluno.setCpf("52998224725");
         aluno.setDataNascimento(LocalDate.of(2000, 1, 1));
     }
 
     private AlunoRequest request() {
-        return new AlunoRequest("Maria Silva", "maria@email.com", "12345678901", LocalDate.of(2000, 1, 1));
+        return new AlunoRequest("Maria Silva", "maria@email.com", "52998224725", LocalDate.of(2000, 1, 1));
     }
 
     @Test
@@ -78,7 +78,7 @@ class AlunoServiceTest {
     @DisplayName("Criar aluno com CPF duplicado - erro")
     void deveRejeitarCpfDuplicado() {
         when(alunoRepository.existsByEmail("maria@email.com")).thenReturn(false);
-        when(alunoRepository.existsByCpf("12345678901")).thenReturn(true);
+        when(alunoRepository.existsByCpf("52998224725")).thenReturn(true);
 
         assertThatThrownBy(() -> alunoService.criar(request()))
                 .isInstanceOf(DuplicateResourceException.class)
@@ -112,7 +112,7 @@ class AlunoServiceTest {
         when(alunoRepository.findByUuid(aluno.getUuid())).thenReturn(Optional.of(aluno));
         when(alunoRepository.save(any(Aluno.class))).thenReturn(aluno);
 
-        AlunoRequest update = new AlunoRequest("Maria Souza", "maria.souza@email.com", "12345678901", LocalDate.of(2000, 1, 1));
+        AlunoRequest update = new AlunoRequest("Maria Souza", "maria.souza@email.com", "52998224725", LocalDate.of(2000, 1, 1));
         AlunoResponse response = alunoService.atualizar(aluno.getUuid(), update);
 
         assertThat(response).isNotNull();
