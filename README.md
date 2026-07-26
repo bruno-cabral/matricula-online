@@ -67,15 +67,15 @@ Na primeira execucao, o Liquibase cria o schema e carrega dados de exemplo (curs
 
 Se preferir rodar backend/frontend na maquina e apenas o banco no Docker:
 
-**Pre-requisitos extras:** Java 25, Maven 3.9+, Node.js 24
+**Pre-requisitos extras:** Java 25, Node.js 24
 
 ```bash
 # 1. Banco
 docker compose up -d db
 
-# 2. Backend
+# 2. Backend (Maven Wrapper incluso — nao precisa de Maven instalado)
 cd backend
-mvn spring-boot:run
+./mvnw spring-boot:run
 
 # 3. Frontend
 cd frontend
@@ -89,13 +89,34 @@ Os testes do backend rodam na maquina (usam H2 em memoria, sem Docker):
 
 ```bash
 cd backend
-mvn test
+./mvnw test
 ```
 
-Os testes unitarios cobrem todas as regras criticas de matricula (RN01-RN07).
-Os testes de integracao validam os fluxos completos via API REST.
+Os testes unitarios cobrem todas as regras criticas de matricula (RN01-RN07) e CRUD das demais entidades.
+Os testes de integracao validam os fluxos completos via API REST para todas as entidades.
 
-**Cenarios testados:**
+### Testes unitarios de service
+
+| Entidade | Cenarios | Classe |
+|----------|----------|--------|
+| Matricula | 12 | `MatriculaServiceTest` |
+| Aluno | 9 | `AlunoServiceTest` |
+| Turma | 9 | `TurmaServiceTest` |
+| Disciplina | 8 | `DisciplinaServiceTest` |
+| Curso | 7 | `CursoServiceTest` |
+| CPF (validacao) | 17 | `CpfValidatorTest` |
+
+### Testes de integracao (API end-to-end)
+
+| Entidade | Cenarios | Classe |
+|----------|----------|--------|
+| Matricula | 6 | `MatriculaIntegrationTest` |
+| Turma | 4 | `TurmaIntegrationTest` |
+| Aluno | 3 | `AlunoIntegrationTest` |
+| Disciplina | 3 | `DisciplinaIntegrationTest` |
+| Curso | 2 | `CursoIntegrationTest` |
+
+### Cenarios de matricula (regras criticas RN01-RN07)
 
 | # | Cenario | Tipo |
 |---|---------|------|
@@ -117,8 +138,23 @@ Os testes de integracao validam os fluxos completos via API REST.
 | 16 | Matricula em turma lotada via API | Integracao |
 | 17 | Consulta por aluno via API (RN07) | Integracao |
 | 18 | Consulta por turma via API (RN07) | Integracao |
-| 19 | CRUD completo de Aluno via API | Integracao |
-| 20 | Validacao de campos obrigatorios | Integracao |
+
+### Cenarios das demais entidades
+
+| # | Cenario | Entidade | Tipo |
+|---|---------|----------|------|
+| 1 | CRUD completo via API | Aluno | Integracao |
+| 2 | Validacao de campos obrigatorios | Aluno | Integracao |
+| 3 | CPF com digito verificador invalido (HTTP 400) | Aluno | Integracao |
+| 4 | CRUD completo via API | Curso | Integracao |
+| 5 | Validacao de campos obrigatorios | Curso | Integracao |
+| 6 | CRUD completo via API | Disciplina | Integracao |
+| 7 | Criar com curso inexistente (HTTP 404) | Disciplina | Integracao |
+| 8 | Validacao de campos obrigatorios | Disciplina | Integracao |
+| 9 | CRUD completo via API | Turma | Integracao |
+| 10 | Codigo duplicado (HTTP 409) | Turma | Integracao |
+| 11 | Criar com disciplina inexistente (HTTP 404) | Turma | Integracao |
+| 12 | Validacao de campos obrigatorios | Turma | Integracao |
 
 ## Documentacao da API
 
@@ -152,6 +188,7 @@ O backend segue uma separacao clara de responsabilidades:
 - **Domain/Model:** Entidades JPA com metodos de dominio (ex: `temVagasDisponiveis()`, `isAberta()`).
 - **Repository:** Interfaces Spring Data JPA para acesso a dados.
 - **DTO:** Records Java para request/response, desacoplados das entidades.
+- **Validation:** Anotacoes customizadas de Bean Validation (`@Cpf`) para regras especificas.
 
 ### UUID Publico + ID Long Interno
 
@@ -182,12 +219,21 @@ Todo o stack sobe via Docker Compose:
 - **backend:** imagem multi-stage (Maven build + JRE 25)
 - **frontend:** imagem multi-stage (Angular build + Nginx), com proxy de `/api` para o backend
 
+### Validacao de CPF com Digitos Verificadores
+
+O CPF e validado com algoritmo completo de digitos verificadores (mod 11), tanto no backend (`@Cpf` — anotacao customizada de Bean Validation) quanto no frontend (diretiva Angular `cpfValidator`). CPFs com todos os digitos iguais ou com digitos verificadores incorretos sao rejeitados com HTTP 400 e feedback visual no formulario.
+
+### Maven Wrapper
+
+O projeto inclui o Maven Wrapper (`mvnw` / `mvnw.cmd`), dispensando a instalacao global do Maven. O wrapper baixa automaticamente o Maven 3.9.16 na primeira execucao.
+
 ### Frontend Organizado
 
 O frontend Angular 22 utiliza:
 - Standalone components (padrao do Angular 22)
 - Services dedicados para cada entidade
 - Tratamento centralizado de erros da API
+- Validacao de CPF client-side com diretiva customizada
 - Filtro por status e paginacao na tela de matriculas
 
 ### Logs Estruturados (D03)
@@ -227,6 +273,8 @@ As regras de matricula sao testadas em dois niveis:
 
 - **Unitarios (`MatriculaServiceTest`):** 12 cenarios com Mockito, cobrindo todos os caminhos de sucesso e erro de RN01 a RN07.
 - **Integracao (`MatriculaIntegrationTest`):** 6 cenarios end-to-end com `TestRestTemplate` e banco H2, validando persistencia e respostas HTTP.
+
+As demais entidades (Aluno, Curso, Disciplina, Turma) tambem possuem testes unitarios de service e testes de integracao end-to-end, cobrindo CRUD, validacoes e cenarios de erro (recurso inexistente, duplicidade, campos obrigatorios).
 
 ## Limitacoes Conhecidas
 
