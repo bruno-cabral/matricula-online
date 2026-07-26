@@ -96,7 +96,7 @@ class MatriculaIntegrationTest {
         assertThat(criarResponse.getBody()).isNotNull();
         assertThat(criarResponse.getBody().status()).isEqualTo(StatusMatricula.PENDENTE);
 
-        ResponseEntity<MatriculaResponse> confirmarResponse = restTemplate.patchForObject(
+        restTemplate.patchForObject(
                 "/api/matriculas/{uuid}/confirmar",
                 null, MatriculaResponse.class, criarResponse.getBody().uuid());
 
@@ -134,7 +134,7 @@ class MatriculaIntegrationTest {
         ResponseEntity<ErrorResponse> duplicadaResponse = restTemplate.postForEntity(
                 "/api/matriculas", request, ErrorResponse.class);
 
-        assertThat(duplicadaResponse.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+        assertThat(duplicadaResponse.getStatusCode().value()).isEqualTo(422);
         assertThat(duplicadaResponse.getBody()).isNotNull();
         assertThat(duplicadaResponse.getBody().message()).contains("Aluno ja possui matricula nesta turma");
     }
@@ -151,7 +151,7 @@ class MatriculaIntegrationTest {
         ResponseEntity<ErrorResponse> response = restTemplate.postForEntity(
                 "/api/matriculas", request, ErrorResponse.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+        assertThat(response.getStatusCode().value()).isEqualTo(422);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().message()).contains("Nao ha vagas disponiveis");
     }

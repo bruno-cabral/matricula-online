@@ -5,6 +5,8 @@ import com.matriculaonline.domain.exception.DuplicateResourceException;
 import com.matriculaonline.domain.exception.ResourceNotFoundException;
 import com.matriculaonline.dto.response.ErrorResponse;
 import com.matriculaonline.dto.response.ValidationErrorResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -17,20 +19,25 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
+        log.warn("Recurso nao encontrado: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ErrorResponse.of(404, "Recurso nao encontrado", ex.getMessage()));
     }
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusiness(BusinessException ex) {
+        log.warn("Regra de negocio violada: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .body(ErrorResponse.of(422, "Regra de negocio violada", ex.getMessage()));
     }
 
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicate(DuplicateResourceException ex) {
+        log.warn("Recurso duplicado: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ErrorResponse.of(409, "Recurso duplicado", ex.getMessage()));
     }
@@ -46,12 +53,14 @@ public class GlobalExceptionHandler {
                 ))
                 .toList();
 
+        log.warn("Erro de validacao: {} campo(s) invalido(s)", details.size());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ValidationErrorResponse.of(400, "Erro de validacao", details));
     }
 
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity<ErrorResponse> handleOptimisticLock(ObjectOptimisticLockingFailureException ex) {
+        log.warn("Conflito de concorrencia (optimistic lock): {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ErrorResponse.of(409, "Conflito de concorrencia",
                         "A operacao falhou devido a uma modificacao concorrente. Tente novamente."));
@@ -59,6 +68,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
+        log.error("Erro interno nao tratado", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ErrorResponse.of(500, "Erro interno do servidor",
                         "Ocorreu um erro inesperado. Tente novamente mais tarde."));

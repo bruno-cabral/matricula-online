@@ -135,6 +135,7 @@ Os testes de integracao validam os fluxos completos via API REST.
 | Banco de dados | PostgreSQL | 18 |
 | Migrations | Liquibase | Gerenciado pelo Spring Boot |
 | Documentacao API | springdoc-openapi | 3.0.3 |
+| Logs estruturados | logstash-logback-encoder | 8.1 |
 | Testes | JUnit 5, Mockito, H2 | Gerenciado pelo Spring Boot |
 | Frontend | Angular | 22 |
 | Runtime frontend | Node.js (Active LTS) | 24 |
@@ -187,6 +188,29 @@ O frontend Angular 22 utiliza:
 - Tratamento centralizado de erros da API
 - Filtro por status e paginacao na tela de matriculas
 
+### Logs Estruturados (D03)
+
+O backend utiliza SLF4J + Logback com `logstash-logback-encoder` para emitir logs em JSON estruturado:
+
+- **Producao (Docker):** Saida JSON via `LogstashEncoder`, ideal para coleta por ferramentas como ELK, Datadog ou CloudWatch.
+- **Desenvolvimento local (`dev`):** Formato texto legivel no console. Ativar com `spring.profiles.active=dev`.
+- **Testes (`test`):** Nivel WARN para reduzir ruido.
+
+O `MatriculaService` utiliza MDC (Mapped Diagnostic Context) para enriquecer os logs com contexto transacional (`matriculaUuid`, `alunoUuid`, `turmaUuid`). O `GlobalExceptionHandler` loga todas as excecoes tratadas (WARN para erros de negocio, ERROR com stack trace para erros inesperados).
+
+Exemplo de saida JSON:
+```json
+{
+  "timestamp": "2025-01-15T10:30:00.000-03:00",
+  "level": "INFO",
+  "logger_name": "c.m.service.MatriculaService",
+  "message": "Matricula confirmada",
+  "matriculaUuid": "c1d2e3f4-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
+  "alunoUuid": "b2e4d9f1-3a6c-4f8b-8d0e-1c7f6a5b4e3d",
+  "turmaUuid": "a3f1c8e2-4b5d-4e9a-9c1f-2d8e7a6b5c4d"
+}
+```
+
 ## Protecao da Regra de Vagas
 
 A protecao contra consumo excessivo de vagas e implementada com:
@@ -206,7 +230,6 @@ As regras de matricula sao testadas em dois niveis:
 
 - Frontend sem testes automatizados (priorizados os testes do backend por serem criticos na avaliacao).
 - Sem CI/CD configurado (diferencial D01).
-- Sem logs estruturados em JSON (diferencial D03).
 - Sem eventos de dominio (diferencial D04).
 - A validacao de CPF e simplificada (apenas verifica tamanho, sem digito verificador).
 - Sem tratamento de soft delete em cascata (deletar entidades com dependencias pode falhar).

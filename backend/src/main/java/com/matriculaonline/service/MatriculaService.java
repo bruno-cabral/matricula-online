@@ -9,6 +9,9 @@ import com.matriculaonline.dto.response.PageResponse;
 import com.matriculaonline.repository.AlunoRepository;
 import com.matriculaonline.repository.MatriculaRepository;
 import com.matriculaonline.repository.TurmaRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +21,8 @@ import java.util.UUID;
 
 @Service
 public class MatriculaService {
+
+    private static final Logger log = LoggerFactory.getLogger(MatriculaService.class);
 
     private final MatriculaRepository matriculaRepository;
     private final AlunoRepository alunoRepository;
@@ -67,7 +72,17 @@ public class MatriculaService {
         matricula.setTurma(turma);
         matricula.setStatus(StatusMatricula.PENDENTE);
 
-        return MatriculaResponse.fromEntity(matriculaRepository.save(matricula));
+        Matricula salva = matriculaRepository.save(matricula);
+        try {
+            MDC.put("matriculaUuid", salva.getUuid().toString());
+            MDC.put("alunoUuid", aluno.getUuid().toString());
+            MDC.put("turmaUuid", turma.getUuid().toString());
+            log.info("Matricula criada");
+        } finally {
+            MDC.clear();
+        }
+
+        return MatriculaResponse.fromEntity(salva);
     }
 
     /**
@@ -79,28 +94,39 @@ public class MatriculaService {
         Matricula matricula = matriculaRepository.findByUuid(matriculaUuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Matricula", matriculaUuid.toString()));
 
-        // Idempotência: já confirmada -> no-op
-        if (matricula.isConfirmada()) {
-            return MatriculaResponse.fromEntity(matricula);
+        try {
+            MDC.put("matriculaUuid", matricula.getUuid().toString());
+            MDC.put("alunoUuid", matricula.getAluno().getUuid().toString());
+            MDC.put("turmaUuid", matricula.getTurma().getUuid().toString());
+
+            // Idempotência: já confirmada -> no-op
+            if (matricula.isConfirmada()) {
+                log.debug("Matricula ja confirmada (no-op)");
+                return MatriculaResponse.fromEntity(matricula);
+            }
+
+            // RN04: Transição inválida CANCELADA -> CONFIRMADA
+            if (matricula.isCancelada()) {
+                throw new BusinessException("Nao e permitido confirmar uma matricula cancelada");
+            }
+
+            // RN05: Verifica vagas antes de confirmar
+            Turma turma = matricula.getTurma();
+            if (!turma.temVagasDisponiveis()) {
+                throw new BusinessException("Nao ha vagas disponiveis nesta turma");
+            }
+
+            // RN05: Consumo de vaga
+            turma.incrementarVagasOcupadas();
+            turmaRepository.save(turma);
+
+            matricula.setStatus(StatusMatricula.CONFIRMADA);
+            Matricula salva = matriculaRepository.save(matricula);
+            log.info("Matricula confirmada");
+            return MatriculaResponse.fromEntity(salva);
+        } finally {
+            MDC.clear();
         }
-
-        // RN04: Transição inválida CANCELADA -> CONFIRMADA
-        if (matricula.isCancelada()) {
-            throw new BusinessException("Nao e permitido confirmar uma matricula cancelada");
-        }
-
-        // RN05: Verifica vagas antes de confirmar
-        Turma turma = matricula.getTurma();
-        if (!turma.temVagasDisponiveis()) {
-            throw new BusinessException("Nao ha vagas disponiveis nesta turma");
-        }
-
-        // RN05: Consumo de vaga
-        turma.incrementarVagasOcupadas();
-        turmaRepository.save(turma);
-
-        matricula.setStatus(StatusMatricula.CONFIRMADA);
-        return MatriculaResponse.fromEntity(matriculaRepository.save(matricula));
     }
 
     /**
@@ -112,21 +138,32 @@ public class MatriculaService {
         Matricula matricula = matriculaRepository.findByUuid(matriculaUuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Matricula", matriculaUuid.toString()));
 
-        // Idempotência: já cancelada -> no-op
-        if (matricula.isCancelada()) {
-            return MatriculaResponse.fromEntity(matricula);
-        }
+        try {
+            MDC.put("matriculaUuid", matricula.getUuid().toString());
+            MDC.put("alunoUuid", matricula.getAluno().getUuid().toString());
+            MDC.put("turmaUuid", matricula.getTurma().getUuid().toString());
 
-        // RN06: Se era CONFIRMADA, libera a vaga
-        if (matricula.isConfirmada()) {
-            Turma turma = matricula.getTurma();
-            turma.decrementarVagasOcupadas();
-            turmaRepository.save(turma);
-        }
+            // Idempotência: já cancelada -> no-op
+            if (matricula.isCancelada()) {
+                log.debug("Matricula ja cancelada (no-op)");
+                return MatriculaResponse.fromEntity(matricula);
+            }
 
-        // PENDENTE -> CANCELADA: sem alteração de vagas
-        matricula.setStatus(StatusMatricula.CANCELADA);
-        return MatriculaResponse.fromEntity(matriculaRepository.save(matricula));
+            // RN06: Se era CONFIRMADA, libera a vaga
+            if (matricula.isConfirmada()) {
+                Turma turma = matricula.getTurma();
+                turma.decrementarVagasOcupadas();
+                turmaRepository.save(turma);
+            }
+
+            // PENDENTE -> CANCELADA: sem alteração de vagas
+            matricula.setStatus(StatusMatricula.CANCELADA);
+            Matricula salva = matriculaRepository.save(matricula);
+            log.info("Matricula cancelada");
+            return MatriculaResponse.fromEntity(salva);
+        } finally {
+            MDC.clear();
+        }
     }
 
     @Transactional(readOnly = true)
