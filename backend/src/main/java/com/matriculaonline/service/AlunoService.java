@@ -1,0 +1,71 @@
+package com.matriculaonline.service;
+
+import com.matriculaonline.domain.exception.DuplicateResourceException;
+import com.matriculaonline.domain.exception.ResourceNotFoundException;
+import com.matriculaonline.domain.model.Aluno;
+import com.matriculaonline.dto.request.AlunoRequest;
+import com.matriculaonline.dto.response.AlunoResponse;
+import com.matriculaonline.dto.response.PageResponse;
+import com.matriculaonline.repository.AlunoRepository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
+
+@Service
+public class AlunoService {
+
+    private final AlunoRepository alunoRepository;
+
+    public AlunoService(AlunoRepository alunoRepository) {
+        this.alunoRepository = alunoRepository;
+    }
+
+    @Transactional
+    public AlunoResponse criar(AlunoRequest request) {
+        if (alunoRepository.existsByEmail(request.email())) {
+            throw new DuplicateResourceException("Ja existe um aluno com o email: " + request.email());
+        }
+        if (alunoRepository.existsByCpf(request.cpf())) {
+            throw new DuplicateResourceException("Ja existe um aluno com o CPF: " + request.cpf());
+        }
+
+        Aluno aluno = new Aluno();
+        aluno.setNome(request.nome());
+        aluno.setEmail(request.email());
+        aluno.setCpf(request.cpf());
+        aluno.setDataNascimento(request.dataNascimento());
+        return AlunoResponse.fromEntity(alunoRepository.save(aluno));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<AlunoResponse> listar(Pageable pageable) {
+        return PageResponse.from(alunoRepository.findAll(pageable), AlunoResponse::fromEntity);
+    }
+
+    @Transactional(readOnly = true)
+    public AlunoResponse buscarPorUuid(UUID uuid) {
+        Aluno aluno = alunoRepository.findByUuid(uuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Aluno", uuid.toString()));
+        return AlunoResponse.fromEntity(aluno);
+    }
+
+    @Transactional
+    public AlunoResponse atualizar(UUID uuid, AlunoRequest request) {
+        Aluno aluno = alunoRepository.findByUuid(uuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Aluno", uuid.toString()));
+        aluno.setNome(request.nome());
+        aluno.setEmail(request.email());
+        aluno.setCpf(request.cpf());
+        aluno.setDataNascimento(request.dataNascimento());
+        return AlunoResponse.fromEntity(alunoRepository.save(aluno));
+    }
+
+    @Transactional
+    public void deletar(UUID uuid) {
+        Aluno aluno = alunoRepository.findByUuid(uuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Aluno", uuid.toString()));
+        alunoRepository.delete(aluno);
+    }
+}

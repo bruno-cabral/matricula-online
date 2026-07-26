@@ -1,0 +1,244 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-seed-dados-iniciais
+      author: matricula-online
+      comment: Dados basicos para primeira execucao do projeto
+      changes:
+        # --- Cursos ---
+        - insert:
+            tableName: curso
+            columns:
+              - column: { name: uuid, value: "11111111-1111-1111-1111-111111111101" }
+              - column: { name: nome, value: "Ciencia da Computacao" }
+              - column: { name: descricao, value: "Formacao em fundamentos da computacao, algoritmos e engenharia de software." }
+              - column: { name: carga_horaria, valueNumeric: 3200 }
+        - insert:
+            tableName: curso
+            columns:
+              - column: { name: uuid, value: "11111111-1111-1111-1111-111111111102" }
+              - column: { name: nome, value: "Engenharia de Software" }
+              - column: { name: descricao, value: "Foco em desenvolvimento de sistemas, arquitetura e qualidade de software." }
+              - column: { name: carga_horaria, valueNumeric: 3600 }
+        - insert:
+            tableName: curso
+            columns:
+              - column: { name: uuid, value: "11111111-1111-1111-1111-111111111103" }
+              - column: { name: nome, value: "Sistemas de Informacao" }
+              - column: { name: descricao, value: "Gestao de sistemas, bancos de dados e tecnologia aplicada aos negocios." }
+              - column: { name: carga_horaria, valueNumeric: 3000 }
+
+        # --- Alunos ---
+        - insert:
+            tableName: aluno
+            columns:
+              - column: { name: uuid, value: "22222222-2222-2222-2222-222222222201" }
+              - column: { name: nome, value: "Maria Silva" }
+              - column: { name: email, value: "maria.silva@email.com" }
+              - column: { name: cpf, value: "11122233344" }
+              - column: { name: data_nascimento, valueDate: "2002-03-15" }
+        - insert:
+            tableName: aluno
+            columns:
+              - column: { name: uuid, value: "22222222-2222-2222-2222-222222222202" }
+              - column: { name: nome, value: "Joao Santos" }
+              - column: { name: email, value: "joao.santos@email.com" }
+              - column: { name: cpf, value: "22233344455" }
+              - column: { name: data_nascimento, valueDate: "2001-07-22" }
+        - insert:
+            tableName: aluno
+            columns:
+              - column: { name: uuid, value: "22222222-2222-2222-2222-222222222203" }
+              - column: { name: nome, value: "Ana Oliveira" }
+              - column: { name: email, value: "ana.oliveira@email.com" }
+              - column: { name: cpf, value: "33344455566" }
+              - column: { name: data_nascimento, valueDate: "2003-11-08" }
+        - insert:
+            tableName: aluno
+            columns:
+              - column: { name: uuid, value: "22222222-2222-2222-2222-222222222204" }
+              - column: { name: nome, value: "Pedro Costa" }
+              - column: { name: email, value: "pedro.costa@email.com" }
+              - column: { name: cpf, value: "44455566677" }
+              - column: { name: data_nascimento, valueDate: "2000-01-30" }
+        - insert:
+            tableName: aluno
+            columns:
+              - column: { name: uuid, value: "22222222-2222-2222-2222-222222222205" }
+              - column: { name: nome, value: "Carla Mendes" }
+              - column: { name: email, value: "carla.mendes@email.com" }
+              - column: { name: cpf, value: "55566677788" }
+              - column: { name: data_nascimento, valueDate: "2002-09-12" }
+
+        # --- Disciplinas ---
+        - insert:
+            tableName: disciplina
+            columns:
+              - column: { name: uuid, value: "33333333-3333-3333-3333-333333333301" }
+              - column: { name: nome, value: "Algoritmos e Estruturas de Dados" }
+              - column: { name: descricao, value: "Estudo de algoritmos fundamentais e estruturas de dados." }
+              - column: { name: carga_horaria, valueNumeric: 80 }
+              - column:
+                  name: curso_id
+                  valueComputed: "(SELECT id FROM curso WHERE uuid = '11111111-1111-1111-1111-111111111101')"
+        - insert:
+            tableName: disciplina
+            columns:
+              - column: { name: uuid, value: "33333333-3333-3333-3333-333333333302" }
+              - column: { name: nome, value: "Banco de Dados" }
+              - column: { name: descricao, value: "Modelagem relacional, SQL e administracao de bancos de dados." }
+              - column: { name: carga_horaria, valueNumeric: 60 }
+              - column:
+                  name: curso_id
+                  valueComputed: "(SELECT id FROM curso WHERE uuid = '11111111-1111-1111-1111-111111111101')"
+        - insert:
+            tableName: disciplina
+            columns:
+              - column: { name: uuid, value: "33333333-3333-3333-3333-333333333303" }
+              - column: { name: nome, value: "Arquitetura de Software" }
+              - column: { name: descricao, value: "Padroes arquiteturais, microservicos e design de sistemas." }
+              - column: { name: carga_horaria, valueNumeric: 72 }
+              - column:
+                  name: curso_id
+                  valueComputed: "(SELECT id FROM curso WHERE uuid = '11111111-1111-1111-1111-111111111102')"
+        - insert:
+            tableName: disciplina
+            columns:
+              - column: { name: uuid, value: "33333333-3333-3333-3333-333333333304" }
+              - column: { name: nome, value: "Engenharia de Requisitos" }
+              - column: { name: descricao, value: "Levantamento, analise e gestao de requisitos de software." }
+              - column: { name: carga_horaria, valueNumeric: 60 }
+              - column:
+                  name: curso_id
+                  valueComputed: "(SELECT id FROM curso WHERE uuid = '11111111-1111-1111-1111-111111111102')"
+        - insert:
+            tableName: disciplina
+            columns:
+              - column: { name: uuid, value: "33333333-3333-3333-3333-333333333305" }
+              - column: { name: nome, value: "Gestao de Projetos de TI" }
+              - column: { name: descricao, value: "Planejamento, execucao e controle de projetos de tecnologia." }
+              - column: { name: carga_horaria, valueNumeric: 48 }
+              - column:
+                  name: curso_id
+                  valueComputed: "(SELECT id FROM curso WHERE uuid = '11111111-1111-1111-1111-111111111103')"
+
+        # --- Turmas ---
+        - insert:
+            tableName: turma
+            columns:
+              - column: { name: uuid, value: "44444444-4444-4444-4444-444444444401" }
+              - column: { name: codigo, value: "ALG-2026-1-A" }
+              - column:
+                  name: disciplina_id
+                  valueComputed: "(SELECT id FROM disciplina WHERE uuid = '33333333-3333-3333-3333-333333333301')"
+              - column: { name: professor, value: "Prof. Roberto Lima" }
+              - column: { name: semestre, value: "2026.1" }
+              - column: { name: vagas, valueNumeric: 30 }
+              - column: { name: vagas_ocupadas, valueNumeric: 1 }
+              - column: { name: status, value: "ABERTA" }
+              - column: { name: version, valueNumeric: 0 }
+        - insert:
+            tableName: turma
+            columns:
+              - column: { name: uuid, value: "44444444-4444-4444-4444-444444444402" }
+              - column: { name: codigo, value: "BD-2026-1-A" }
+              - column:
+                  name: disciplina_id
+                  valueComputed: "(SELECT id FROM disciplina WHERE uuid = '33333333-3333-3333-3333-333333333302')"
+              - column: { name: professor, value: "Profa. Fernanda Dias" }
+              - column: { name: semestre, value: "2026.1" }
+              - column: { name: vagas, valueNumeric: 25 }
+              - column: { name: vagas_ocupadas, valueNumeric: 0 }
+              - column: { name: status, value: "ABERTA" }
+              - column: { name: version, valueNumeric: 0 }
+        - insert:
+            tableName: turma
+            columns:
+              - column: { name: uuid, value: "44444444-4444-4444-4444-444444444403" }
+              - column: { name: codigo, value: "ARQ-2026-1-A" }
+              - column:
+                  name: disciplina_id
+                  valueComputed: "(SELECT id FROM disciplina WHERE uuid = '33333333-3333-3333-3333-333333333303')"
+              - column: { name: professor, value: "Prof. Carlos Souza" }
+              - column: { name: semestre, value: "2026.1" }
+              - column: { name: vagas, valueNumeric: 20 }
+              - column: { name: vagas_ocupadas, valueNumeric: 0 }
+              - column: { name: status, value: "ABERTA" }
+              - column: { name: version, valueNumeric: 0 }
+        - insert:
+            tableName: turma
+            columns:
+              - column: { name: uuid, value: "44444444-4444-4444-4444-444444444404" }
+              - column: { name: codigo, value: "REQ-2025-2-B" }
+              - column:
+                  name: disciplina_id
+                  valueComputed: "(SELECT id FROM disciplina WHERE uuid = '33333333-3333-3333-3333-333333333304')"
+              - column: { name: professor, value: "Profa. Juliana Rocha" }
+              - column: { name: semestre, value: "2025.2" }
+              - column: { name: vagas, valueNumeric: 20 }
+              - column: { name: vagas_ocupadas, valueNumeric: 0 }
+              - column: { name: status, value: "FECHADA" }
+              - column: { name: version, valueNumeric: 0 }
+        - insert:
+            tableName: turma
+            columns:
+              - column: { name: uuid, value: "44444444-4444-4444-4444-444444444405" }
+              - column: { name: codigo, value: "GPI-2026-1-A" }
+              - column:
+                  name: disciplina_id
+                  valueComputed: "(SELECT id FROM disciplina WHERE uuid = '33333333-3333-3333-3333-333333333305')"
+              - column: { name: professor, value: "Prof. Marcos Vieira" }
+              - column: { name: semestre, value: "2026.1" }
+              - column: { name: vagas, valueNumeric: 2 }
+              - column: { name: vagas_ocupadas, valueNumeric: 0 }
+              - column: { name: status, value: "ABERTA" }
+              - column: { name: version, valueNumeric: 0 }
+
+        # --- Matriculas (exemplos de status) ---
+        - insert:
+            tableName: matricula
+            columns:
+              - column: { name: uuid, value: "55555555-5555-5555-5555-555555555501" }
+              - column:
+                  name: aluno_id
+                  valueComputed: "(SELECT id FROM aluno WHERE uuid = '22222222-2222-2222-2222-222222222201')"
+              - column:
+                  name: turma_id
+                  valueComputed: "(SELECT id FROM turma WHERE uuid = '44444444-4444-4444-4444-444444444401')"
+              - column: { name: status, value: "CONFIRMADA" }
+              - column: { name: data_matricula, valueDate: "2026-02-10T10:00:00" }
+        - insert:
+            tableName: matricula
+            columns:
+              - column: { name: uuid, value: "55555555-5555-5555-5555-555555555502" }
+              - column:
+                  name: aluno_id
+                  valueComputed: "(SELECT id FROM aluno WHERE uuid = '22222222-2222-2222-2222-222222222202')"
+              - column:
+                  name: turma_id
+                  valueComputed: "(SELECT id FROM turma WHERE uuid = '44444444-4444-4444-4444-444444444401')"
+              - column: { name: status, value: "PENDENTE" }
+              - column: { name: data_matricula, valueDate: "2026-02-12T14:30:00" }
+        - insert:
+            tableName: matricula
+            columns:
+              - column: { name: uuid, value: "55555555-5555-5555-5555-555555555503" }
+              - column:
+                  name: aluno_id
+                  valueComputed: "(SELECT id FROM aluno WHERE uuid = '22222222-2222-2222-2222-222222222203')"
+              - column:
+                  name: turma_id
+                  valueComputed: "(SELECT id FROM turma WHERE uuid = '44444444-4444-4444-4444-444444444402')"
+              - column: { name: status, value: "PENDENTE" }
+              - column: { name: data_matricula, valueDate: "2026-02-15T09:00:00" }
+        - insert:
+            tableName: matricula
+            columns:
+              - column: { name: uuid, value: "55555555-5555-5555-5555-555555555504" }
+              - column:
+                  name: aluno_id
+                  valueComputed: "(SELECT id FROM aluno WHERE uuid = '22222222-2222-2222-2222-222222222204')"
+              - column:
+                  name: turma_id
+                  valueComputed: "(SELECT id FROM turma WHERE uuid = '44444444-4444-4444-4444-444444444403')"
+              - column: { name: status, value: "CANCELADA" }
+              - column: { name: data_matricula, valueDate: "2026-01-20T11:00:00" }

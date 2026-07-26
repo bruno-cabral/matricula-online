@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/changes/001-criar-tabela-curso.yaml
+  - include:
+      file: db/changelog/changes/002-criar-tabela-aluno.yaml
+  - include:
+      file: db/changelog/changes/003-criar-tabela-disciplina.yaml
+  - include:
+      file: db/changelog/changes/004-criar-tabela-turma.yaml
+  - include:
+      file: db/changelog/changes/005-criar-tabela-matricula.yaml
+  - include:
+      file: db/changelog/changes/006-seed-dados-iniciais.yaml

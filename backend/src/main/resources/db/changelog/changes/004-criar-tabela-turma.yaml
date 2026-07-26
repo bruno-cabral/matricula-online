@@ -1,0 +1,79 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-criar-tabela-turma
+      author: matricula-online
+      changes:
+        - createTable:
+            tableName: turma
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: uuid
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: codigo
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: disciplina_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_turma_disciplina
+                    references: disciplina(id)
+              - column:
+                  name: professor
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: semestre
+                  type: VARCHAR(10)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: vagas
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: vagas_ocupadas
+                  type: INTEGER
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: ABERTA
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version
+                  type: INTEGER
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
