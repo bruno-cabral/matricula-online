@@ -168,6 +168,8 @@ Todos os endpoints de listagem usam `Pageable` do Spring Data com formato padron
 
 Confirmar uma matricula ja CONFIRMADA ou cancelar uma ja CANCELADA retorna sucesso (HTTP 200) sem alterar o banco (no-op), conforme especificado.
 
+Os endpoints DELETE de Aluno, Curso, Disciplina e Turma tambem sao idempotentes: excluir um recurso inexistente retorna HTTP 204 sem erro.
+
 ### Liquibase para Migrations
 
 O controle de schema e feito exclusivamente pelo Liquibase. O Hibernate esta configurado com `ddl-auto: validate` para garantir alinhamento entre entidades e banco.

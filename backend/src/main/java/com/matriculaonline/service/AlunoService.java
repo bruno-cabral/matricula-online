@@ -62,10 +62,11 @@ public class AlunoService {
         return AlunoResponse.fromEntity(alunoRepository.save(aluno));
     }
 
+    /**
+     * Remove o aluno. Idempotente: se o recurso ja nao existir, retorna sem erro (no-op).
+     */
     @Transactional
     public void deletar(UUID uuid) {
-        Aluno aluno = alunoRepository.findByUuid(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Aluno", uuid.toString()));
-        alunoRepository.delete(aluno);
+        alunoRepository.findByUuid(uuid).ifPresent(alunoRepository::delete);
     }
 }

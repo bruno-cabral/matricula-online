@@ -72,10 +72,11 @@ public class TurmaService {
         return TurmaResponse.fromEntity(turmaRepository.save(turma));
     }
 
+    /**
+     * Remove a turma. Idempotente: se o recurso ja nao existir, retorna sem erro (no-op).
+     */
     @Transactional
     public void deletar(UUID uuid) {
-        Turma turma = turmaRepository.findByUuid(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Turma", uuid.toString()));
-        turmaRepository.delete(turma);
+        turmaRepository.findByUuid(uuid).ifPresent(turmaRepository::delete);
     }
 }

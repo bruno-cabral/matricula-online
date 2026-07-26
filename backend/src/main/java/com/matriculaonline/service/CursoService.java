@@ -52,10 +52,11 @@ public class CursoService {
         return CursoResponse.fromEntity(cursoRepository.save(curso));
     }
 
+    /**
+     * Remove o curso. Idempotente: se o recurso ja nao existir, retorna sem erro (no-op).
+     */
     @Transactional
     public void deletar(UUID uuid) {
-        Curso curso = cursoRepository.findByUuid(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Curso", uuid.toString()));
-        cursoRepository.delete(curso);
+        cursoRepository.findByUuid(uuid).ifPresent(cursoRepository::delete);
     }
 }

@@ -87,6 +87,12 @@ class AlunoIntegrationTest {
 
         assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
+        // DELETE idempotente: recurso ja removido ainda retorna 204
+        ResponseEntity<Void> deleteAgainResponse = restTemplate.exchange(
+                "/api/alunos/{uuid}", HttpMethod.DELETE, null, Void.class, uuid);
+
+        assertThat(deleteAgainResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
         // Verify deleted
         ResponseEntity<String> verifyResponse = restTemplate.getForEntity(
                 "/api/alunos/{uuid}", String.class, uuid);

@@ -65,10 +65,11 @@ public class DisciplinaService {
         return DisciplinaResponse.fromEntity(disciplinaRepository.save(disciplina));
     }
 
+    /**
+     * Remove a disciplina. Idempotente: se o recurso ja nao existir, retorna sem erro (no-op).
+     */
     @Transactional
     public void deletar(UUID uuid) {
-        Disciplina disciplina = disciplinaRepository.findByUuid(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Disciplina", uuid.toString()));
-        disciplinaRepository.delete(disciplina);
+        disciplinaRepository.findByUuid(uuid).ifPresent(disciplinaRepository::delete);
     }
 }
