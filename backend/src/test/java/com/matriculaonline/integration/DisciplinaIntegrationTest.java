@@ -49,7 +49,7 @@ class DisciplinaIntegrationTest {
         cursoRepository.deleteAll();
 
         curso = new Curso();
-        curso.setNome("Ciencia da Computacao");
+        curso.setNome("Ciência da Computação");
         curso.setDescricao("Bacharelado");
         curso.setCargaHoraria(3200);
         curso = cursoRepository.save(curso);
@@ -60,7 +60,7 @@ class DisciplinaIntegrationTest {
     void crudCompletoDisciplina() {
         // CREATE
         DisciplinaRequest createRequest = new DisciplinaRequest(
-                "Algoritmos", "Introducao a algoritmos", 60, curso.getUuid());
+                "Algoritmos", "Introdução a algoritmos", 60, curso.getUuid());
 
         ResponseEntity<DisciplinaResponse> createResponse = restTemplate.postForEntity(
                 "/api/disciplinas", createRequest, DisciplinaResponse.class);
@@ -81,7 +81,7 @@ class DisciplinaIntegrationTest {
 
         // UPDATE
         DisciplinaRequest updateRequest = new DisciplinaRequest(
-                "Estruturas de Dados", "Avancado", 120, curso.getUuid());
+                "Estruturas de Dados", "Avançado", 120, curso.getUuid());
 
         ResponseEntity<DisciplinaResponse> updateResponse = restTemplate.exchange(
                 "/api/disciplinas/{uuid}", HttpMethod.PUT,
@@ -104,7 +104,7 @@ class DisciplinaIntegrationTest {
 
         assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
-        // DELETE idempotente: recurso ja removido ainda retorna 204
+        // DELETE idempotente: recurso já removido ainda retorna 204
         ResponseEntity<Void> deleteAgainResponse = restTemplate.exchange(
                 "/api/disciplinas/{uuid}", HttpMethod.DELETE, null, Void.class, uuid);
 
@@ -121,7 +121,7 @@ class DisciplinaIntegrationTest {
     @DisplayName("Criar disciplina com curso inexistente retorna HTTP 404")
     void criarComCursoInexistenteRetornaNotFound() {
         DisciplinaRequest request = new DisciplinaRequest(
-                "Algoritmos", "Introducao", 60, UUID.randomUUID());
+                "Algoritmos", "Introdução", 60, UUID.randomUUID());
 
         ResponseEntity<String> response = restTemplate.postForEntity(
                 "/api/disciplinas", request, String.class);
@@ -130,7 +130,7 @@ class DisciplinaIntegrationTest {
     }
 
     @Test
-    @DisplayName("Validacao de campos obrigatorios retorna HTTP 400")
+    @DisplayName("Validação de campos obrigatórios retorna HTTP 400")
     void validacaoCamposObrigatorios() {
         DisciplinaRequest invalidRequest = new DisciplinaRequest("", null, null, null);
 

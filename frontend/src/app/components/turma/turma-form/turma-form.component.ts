@@ -22,7 +22,7 @@ import { Disciplina } from '../../../models/disciplina.model';
       <form (ngSubmit)="salvar()" #form="ngForm">
         <div class="form-row">
           <div class="form-group">
-            <label for="codigo">Codigo</label>
+            <label for="codigo">Código</label>
             <input id="codigo" type="text" [(ngModel)]="turma.codigo" name="codigo" required>
           </div>
           <div class="form-group">
@@ -48,7 +48,7 @@ import { Disciplina } from '../../../models/disciplina.model';
         </div>
 
         <div class="form-group">
-          <label for="vagas">Numero de Vagas</label>
+          <label for="vagas">Número de Vagas</label>
           <input id="vagas" type="number" [(ngModel)]="turma.vagas" name="vagas" required min="1">
         </div>
 

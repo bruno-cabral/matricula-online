@@ -2,7 +2,7 @@ databaseChangeLog:
   - changeSet:
       id: 007-corrigir-cpfs-validos
       author: matricula-online
-      comment: Atualiza CPFs do seed para valores com digitos verificadores validos
+      comment: Atualiza CPFs do seed para valores com dígitos verificadores válidos
       changes:
         - update:
             tableName: aluno

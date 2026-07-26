@@ -50,7 +50,7 @@ class AlunoServiceTest {
     }
 
     @Test
-    @DisplayName("Criar aluno com dados validos - sucesso")
+    @DisplayName("Criar aluno com dados válidos - sucesso")
     void deveCriarAluno() {
         when(alunoRepository.existsByEmail(anyString())).thenReturn(false);
         when(alunoRepository.existsByCpf(anyString())).thenReturn(false);

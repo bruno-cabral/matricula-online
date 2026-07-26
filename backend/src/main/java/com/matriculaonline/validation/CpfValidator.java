@@ -8,14 +8,14 @@ public class CpfValidator implements ConstraintValidator<Cpf, String> {
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null || value.isBlank()) {
-            return true; // @NotBlank cuida do obrigatorio
+            return true; // @NotBlank cuida do obrigatório
         }
         return isCpfValido(value);
     }
 
     /**
-     * Valida CPF com digitos verificadores.
-     * Aceita formatado (000.000.000-00) ou apenas digitos.
+     * Valida CPF com dígitos verificadores.
+     * Aceita formatado (000.000.000-00) ou apenas dígitos.
      */
     static boolean isCpfValido(String cpf) {
         String digits = cpf.replaceAll("\\D", "");

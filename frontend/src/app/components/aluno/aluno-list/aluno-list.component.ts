@@ -36,7 +36,7 @@ import { SortState, sortIndicator, toggleSort, toSortParam } from '../../../shar
                 <th class="sortable" [class.active]="sort().field === 'dataNascimento'" (click)="ordenar('dataNascimento')">
                   Data de Nascimento{{ indicator('dataNascimento') }}
                 </th>
-                <th>Acoes</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -47,7 +47,7 @@ import { SortState, sortIndicator, toggleSort, toSortParam } from '../../../shar
                   <td>{{ aluno.cpf }}</td>
                   <td>{{ aluno.dataNascimento }}</td>
                   <td class="actions">
-                    <a [routerLink]="['/matriculas']" [queryParams]="{ alunoUuid: aluno.uuid }" class="btn btn-outline btn-sm">Matriculas</a>
+                    <a [routerLink]="['/matriculas']" [queryParams]="{ alunoUuid: aluno.uuid }" class="btn btn-outline btn-sm">Matrículas</a>
                     <a [routerLink]="['/alunos/editar', aluno.uuid]" class="btn btn-outline btn-sm">Editar</a>
                     <button class="btn btn-danger btn-sm" (click)="deletar(aluno.uuid)">Excluir</button>
                   </td>
@@ -58,8 +58,8 @@ import { SortState, sortIndicator, toggleSort, toSortParam } from '../../../shar
 
           <div class="pagination">
             <button class="btn btn-outline btn-sm" [disabled]="currentPage() === 0" (click)="irParaPagina(currentPage() - 1)">Anterior</button>
-            <span>Pagina {{ currentPage() + 1 }} de {{ p.totalPages }} ({{ p.totalElements }} registros)</span>
-            <button class="btn btn-outline btn-sm" [disabled]="currentPage() >= p.totalPages - 1" (click)="irParaPagina(currentPage() + 1)">Proxima</button>
+            <span>Página {{ currentPage() + 1 }} de {{ p.totalPages }} ({{ p.totalElements }} registros)</span>
+            <button class="btn btn-outline btn-sm" [disabled]="currentPage() >= p.totalPages - 1" (click)="irParaPagina(currentPage() + 1)">Próxima</button>
           </div>
         } @else {
           <div class="empty-state">
@@ -114,7 +114,7 @@ export class AlunoListComponent implements OnInit {
     if (confirm('Tem certeza que deseja excluir este aluno?')) {
       this.alunoService.deletar(uuid).subscribe({
         next: () => {
-          this.notification.success('Aluno excluido com sucesso');
+          this.notification.success('Aluno excluído com sucesso');
           this.carregar();
         },
         error: (err) => handleApiError(err, this.notification)

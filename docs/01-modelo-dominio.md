@@ -1,105 +1,105 @@
-# Modelo de Dominio
+# Modelo de Domínio
 
 ## Entidades Sugeridas
 
-O desafio define 5 entidades principais que formam o nucleo do sistema de matricula online.
+O desafio define 5 entidades principais que formam o núcleo do sistema de matrícula online.
 
-### Identificadores: id interno + uuid publico
+### Identificadores: id interno + uuid público
 
-Todas as entidades seguem o padrao **duplo identificador**:
+Todas as entidades seguem o padrão **duplo identificador**:
 
 | Campo | Tipo | Uso |
 |-------|------|-----|
-| `id` | Long | PK interna. Usada em FKs, indices e joins. **Nunca exposta** na API (DTOs, path params, responses). |
-| `uuid` | UUID | Identificador publico unico. Usado em **todas** as rotas e respostas dos endpoints. |
+| `id` | Long | PK interna. Usada em FKs, índices e joins. **Nunca exposta** na API (DTOs, path params, responses). |
+| `uuid` | UUID | Identificador público único. Usado em **todas** as rotas e respostas dos endpoints. |
 
-**Motivo:** evitar enumeracao e exposicao de IDs sequenciais; manter performance de FK com `BIGINT` no banco.
+**Motivo:** evitar enumeração e exposição de IDs sequenciais; manter performance de FK com `BIGINT` no banco.
 
 ---
 
 ### Aluno
 
-| Atributo | Tipo | Descricao |
+| Atributo | Tipo | Descrição |
 |----------|------|-----------|
-| id | Long | PK interna (nao exposta) |
-| uuid | UUID | Identificador publico (unico) |
+| id | Long | PK interna (não exposta) |
+| uuid | UUID | Identificador público (único) |
 | nome | String | Nome completo do aluno |
-| email | String | Email do aluno (unico) |
-| cpf | String | CPF do aluno (unico) |
+| email | String | Email do aluno (único) |
+| cpf | String | CPF do aluno (único) |
 | dataNascimento | LocalDate | Data de nascimento |
-| createdAt | LocalDateTime | Data de criacao do registro |
-| updatedAt | LocalDateTime | Data de atualizacao do registro |
+| createdAt | LocalDateTime | Data de criação do registro |
+| updatedAt | LocalDateTime | Data de atualização do registro |
 
 ### Curso
 
-| Atributo | Tipo | Descricao |
+| Atributo | Tipo | Descrição |
 |----------|------|-----------|
-| id | Long | PK interna (nao exposta) |
-| uuid | UUID | Identificador publico (unico) |
+| id | Long | PK interna (não exposta) |
+| uuid | UUID | Identificador público (único) |
 | nome | String | Nome do curso |
-| descricao | String | Descricao do curso |
-| cargaHoraria | Integer | Carga horaria total em horas |
-| createdAt | LocalDateTime | Data de criacao do registro |
-| updatedAt | LocalDateTime | Data de atualizacao do registro |
+| descricao | String | Descrição do curso |
+| cargaHoraria | Integer | Carga horária total em horas |
+| createdAt | LocalDateTime | Data de criação do registro |
+| updatedAt | LocalDateTime | Data de atualização do registro |
 
 ### Disciplina
 
-| Atributo | Tipo | Descricao |
+| Atributo | Tipo | Descrição |
 |----------|------|-----------|
-| id | Long | PK interna (nao exposta) |
-| uuid | UUID | Identificador publico (unico) |
+| id | Long | PK interna (não exposta) |
+| uuid | UUID | Identificador público (único) |
 | nome | String | Nome da disciplina |
-| descricao | String | Descricao da disciplina |
-| cargaHoraria | Integer | Carga horaria em horas |
+| descricao | String | Descrição da disciplina |
+| cargaHoraria | Integer | Carga horária em horas |
 | curso | Curso | Curso ao qual a disciplina pertence |
-| createdAt | LocalDateTime | Data de criacao do registro |
-| updatedAt | LocalDateTime | Data de atualizacao do registro |
+| createdAt | LocalDateTime | Data de criação do registro |
+| updatedAt | LocalDateTime | Data de atualização do registro |
 
 ### Turma
 
-| Atributo | Tipo | Descricao |
+| Atributo | Tipo | Descrição |
 |----------|------|-----------|
-| id | Long | PK interna (nao exposta) |
-| uuid | UUID | Identificador publico (unico) |
-| codigo | String | Codigo identificador da turma |
+| id | Long | PK interna (não exposta) |
+| uuid | UUID | Identificador público (único) |
+| codigo | String | Código identificador da turma |
 | disciplina | Disciplina | Disciplina da turma |
-| professor | String | Nome do professor responsavel |
+| professor | String | Nome do professor responsável |
 | semestre | String | Semestre letivo (ex: 2025.1) |
-| vagas | Integer | Numero total de vagas |
-| vagasOcupadas | Integer | Numero de vagas ja ocupadas |
+| vagas | Integer | Número total de vagas |
+| vagasOcupadas | Integer | Número de vagas já ocupadas |
 | status | StatusTurma | ABERTA ou FECHADA |
-| createdAt | LocalDateTime | Data de criacao do registro |
-| updatedAt | LocalDateTime | Data de atualizacao do registro |
+| createdAt | LocalDateTime | Data de criação do registro |
+| updatedAt | LocalDateTime | Data de atualização do registro |
 
-### Matricula
+### Matrícula
 
-| Atributo | Tipo | Descricao |
+| Atributo | Tipo | Descrição |
 |----------|------|-----------|
-| id | Long | PK interna (nao exposta) |
-| uuid | UUID | Identificador publico (unico) |
+| id | Long | PK interna (não exposta) |
+| uuid | UUID | Identificador público (único) |
 | aluno | Aluno | Aluno matriculado |
-| turma | Turma | Turma na qual o aluno esta matriculado |
+| turma | Turma | Turma na qual o aluno está matriculado |
 | status | StatusMatricula | PENDENTE, CONFIRMADA ou CANCELADA |
-| dataMatricula | LocalDateTime | Data em que a matricula foi realizada |
-| createdAt | LocalDateTime | Data de criacao do registro |
-| updatedAt | LocalDateTime | Data de atualizacao do registro |
+| dataMatricula | LocalDateTime | Data em que a matrícula foi realizada |
+| createdAt | LocalDateTime | Data de criação do registro |
+| updatedAt | LocalDateTime | Data de atualização do registro |
 
 ## Enums
 
 ### StatusMatricula
 
-| Valor | Descricao |
+| Valor | Descrição |
 |-------|-----------|
-| PENDENTE | Matricula criada mas ainda nao confirmada |
-| CONFIRMADA | Matricula confirmada, vaga consumida |
-| CANCELADA | Matricula cancelada, vaga liberada (se estava confirmada) |
+| PENDENTE | Matrícula criada mas ainda não confirmada |
+| CONFIRMADA | Matrícula confirmada, vaga consumida |
+| CANCELADA | Matrícula cancelada, vaga liberada (se estava confirmada) |
 
 ### StatusTurma
 
-| Valor | Descricao |
+| Valor | Descrição |
 |-------|-----------|
-| ABERTA | Turma aceitando matriculas |
-| FECHADA | Turma nao aceita mais matriculas |
+| ABERTA | Turma aceitando matrículas |
+| FECHADA | Turma não aceita mais matrículas |
 
 ## Diagrama de Relacionamentos
 
@@ -160,15 +160,15 @@ erDiagram
 
 ## Relacionamentos
 
-| Origem | Destino | Tipo | Descricao |
+| Origem | Destino | Tipo | Descrição |
 |--------|---------|------|-----------|
-| Curso | Disciplina | 1:N | Um curso possui varias disciplinas |
-| Disciplina | Turma | 1:N | Uma disciplina pode ter varias turmas |
-| Aluno | Matricula | 1:N | Um aluno pode ter varias matriculas |
-| Turma | Matricula | 1:N | Uma turma pode ter varias matriculas |
-| Aluno + Turma | Matricula | Unique | Um aluno nao pode ter duas matriculas ativas na mesma turma |
+| Curso | Disciplina | 1:N | Um curso possui várias disciplinas |
+| Disciplina | Turma | 1:N | Uma disciplina pode ter várias turmas |
+| Aluno | Matrícula | 1:N | Um aluno pode ter várias matrículas |
+| Turma | Matrícula | 1:N | Uma turma pode ter várias matrículas |
+| Aluno + Turma | Matrícula | Unique | Um aluno não pode ter duas matrículas ativas na mesma turma |
 
-## Convencao na API
+## Convenção na API
 
 | Camada | Identificador |
 |--------|---------------|
@@ -185,4 +185,4 @@ Exemplo de response:
 }
 ```
 
-Referencias entre recursos nos DTOs tambem usam UUID (ex: criar matricula envia `alunoUuid` e `turmaUuid`).
+Referências entre recursos nos DTOs também usam UUID (ex: criar matrícula envia `alunoUuid` e `turmaUuid`).

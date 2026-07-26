@@ -9,7 +9,7 @@ export function toSortParam(sort: SortState): string {
   return `${sort.field},${sort.direction}`;
 }
 
-/** Alterna a ordenacao: mesmo campo inverte; novo campo inicia em asc. */
+/** Alterna a ordenação: mesmo campo inverte; novo campo inicia em asc. */
 export function toggleSort(current: SortState, field: string): SortState {
   if (current.field === field) {
     return {

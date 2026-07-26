@@ -1,56 +1,56 @@
-# Criterios de Avaliacao
+# Critérios de Avaliação
 
-## Criterios Eliminatorios
+## Critérios Eliminatórios
 
 Itens que **podem impedir a continuidade** no processo seletivo. Cada um destes deve ser atendido obrigatoriamente.
 
-| # | Tema | Ponto Critico |
+| # | Tema | Ponto Crítico |
 |---|------|--------------|
-| 1 | **Execucao** | Projeto nao roda ou nao ha instrucao clara de execucao |
-| 2 | **Stack** | Backend nao foi desenvolvido em Spring Boot |
-| 3 | **Persistencia** | Nao ha persistencia de dados em banco relacional |
-| 4 | **Regras de negocio** | Regra de matricula nao esta implementada ou a regra de vagas pode ser quebrada facilmente |
-| 5 | **Camadas** | Nao ha separacao clara de camadas ou o codigo esta concentrado em controllers |
-| 6 | **Testes** | Nao ha testes para regras criticas de matricula |
-| 7 | **Ambiente** | Nao ha Docker Compose ou instrucao equivalente confiavel para executar o banco |
-| 8 | **Erros** | Nao ha tratamento adequado e padronizado de erros |
-| 9 | **Documentacao** | O README nao explica como executar, testar e validar a solucao |
-| 10 | **Entrevista** | O candidato nao consegue explicar as decisoes tecnicas, o codigo entregue ou o uso de IA |
+| 1 | **Execução** | Projeto não roda ou não há instrução clara de execução |
+| 2 | **Stack** | Backend não foi desenvolvido em Spring Boot |
+| 3 | **Persistência** | Não há persistência de dados em banco relacional |
+| 4 | **Regras de negócio** | Regra de matrícula não está implementada ou a regra de vagas pode ser quebrada facilmente |
+| 5 | **Camadas** | Não há separação clara de camadas ou o código está concentrado em controllers |
+| 6 | **Testes** | Não há testes para regras críticas de matrícula |
+| 7 | **Ambiente** | Não há Docker Compose ou instrução equivalente confiável para executar o banco |
+| 8 | **Erros** | Não há tratamento adequado e padronizado de erros |
+| 9 | **Documentação** | O README não explica como executar, testar e validar a solução |
+| 10 | **Entrevista** | O candidato não consegue explicar as decisões técnicas, o código entregue ou o uso de IA |
 
-## Dimensoes de Avaliacao
+## Dimensões de Avaliação
 
-Alem dos criterios eliminatorios, a entrega sera avaliada nas seguintes dimensoes:
+Além dos critérios eliminatórios, a entrega será avaliada nas seguintes dimensões:
 
-| Dimensao | O que sera observado |
+| Dimensão | O que será observado |
 |----------|---------------------|
-| **Funcionalidade entregue** | Fluxos principais funcionando e aderentes as regras de negocio |
-| **Organizacao do backend** | Separacao de responsabilidades, clareza de camadas e modelagem |
-| **Regras de negocio** | Consistencia da matricula, controle de vagas e cancelamento |
-| **Testes** | Cobertura das regras criticas e qualidade dos cenarios |
-| **Frontend** | Organizacao, fluxo de uso e tratamento de erros |
-| **Documentacao** | README, Swagger/OpenAPI e explicacao das decisoes tecnicas |
-| **Arquitetura/desacoplamento** | Organizacao interna, baixo acoplamento e escolhas coerentes |
+| **Funcionalidade entregue** | Fluxos principais funcionando e aderentes às regras de negócio |
+| **Organização do backend** | Separação de responsabilidades, clareza de camadas e modelagem |
+| **Regras de negócio** | Consistência da matrícula, controle de vagas e cancelamento |
+| **Testes** | Cobertura das regras críticas e qualidade dos cenários |
+| **Frontend** | Organização, fluxo de uso e tratamento de erros |
+| **Documentação** | README, Swagger/OpenAPI e explicação das decisões técnicas |
+| **Arquitetura/desacoplamento** | Organização interna, baixo acoplamento e escolhas coerentes |
 
 ## Sinais Qualitativos Valorizados
 
 Aspectos subjetivos que os avaliadores buscam:
 
-- **Clareza de raciocinio** e simplicidade nas escolhas.
-- **Capacidade de explicar** o proprio codigo.
-- **Cuidado com erros**, validacoes e transacoes.
-- **Consistencia** entre README, arquitetura e implementacao.
-- **Pragmatismo:** nem codigo improvisado, nem complexidade gratuita.
-- **Autonomia** para tomar boas decisoes sem perder clareza e manutencao.
+- **Clareza de raciocínio** e simplicidade nas escolhas.
+- **Capacidade de explicar** o próprio código.
+- **Cuidado com erros**, validações e transações.
+- **Consistência** entre README, arquitetura e implementação.
+- **Pragmatismo:** nem código improvisado, nem complexidade gratuita.
+- **Autonomia** para tomar boas decisões sem perder clareza e manutenção.
 
-## Mapeamento: Criterio x Documento de Implementacao
+## Mapeamento: Critério x Documento de Implementação
 
-| Criterio Eliminatorio | Documento de Referencia |
+| Critério Eliminatório | Documento de Referência |
 |-----------------------|------------------------|
-| Execucao | [07-infraestrutura.md](07-infraestrutura.md), [09-readme-requisitos.md](09-readme-requisitos.md) |
+| Execução | [07-infraestrutura.md](07-infraestrutura.md), [09-readme-requisitos.md](09-readme-requisitos.md) |
 | Stack Spring Boot | [03-requisitos-backend.md](03-requisitos-backend.md) |
-| Persistencia relacional | [05-persistencia-migrations.md](05-persistencia-migrations.md) |
-| Regras de negocio | [02-regras-negocio.md](02-regras-negocio.md) |
-| Separacao de camadas | [03-requisitos-backend.md](03-requisitos-backend.md) |
+| Persistência relacional | [05-persistencia-migrations.md](05-persistencia-migrations.md) |
+| Regras de negócio | [02-regras-negocio.md](02-regras-negocio.md) |
+| Separação de camadas | [03-requisitos-backend.md](03-requisitos-backend.md) |
 | Testes | [06-testes.md](06-testes.md) |
 | Docker Compose | [07-infraestrutura.md](07-infraestrutura.md) |
 | Tratamento de erros | [03-requisitos-backend.md](03-requisitos-backend.md) |

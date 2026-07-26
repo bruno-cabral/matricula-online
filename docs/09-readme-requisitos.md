@@ -1,37 +1,37 @@
 # Requisitos do README
 
-## Importancia
+## Importância
 
-O README e **parte essencial da avaliacao**. Um README incompleto ou que nao permite reproduzir a execucao e criterio eliminatorio.
+O README é **parte essencial da avaliação**. Um README incompleto ou que não permite reproduzir a execução é critério eliminatório.
 
-## Secoes Obrigatorias
+## Seções Obrigatórias
 
 ### 1. Como rodar o projeto localmente
 
-- Listar pre-requisitos (Docker, Java, Node.js com versoes).
-- Passo a passo para subir toda a aplicacao.
-- Comando unico quando possivel (ex: `docker-compose up`).
+- Listar pré-requisitos (Docker, Java, Node.js com versões).
+- Passo a passo para subir toda a aplicação.
+- Comando único quando possível (ex: `docker-compose up`).
 
 ### 2. Como subir o banco de dados com Docker Compose
 
 - Comando exato para iniciar o banco.
 - Porta e credenciais de acesso.
-- Como verificar que o banco esta rodando.
+- Como verificar que o banco está rodando.
 
 ### 3. Como executar os testes automatizados
 
-- Comando para testes unitarios.
-- Comando para testes de integracao.
+- Comando para testes unitários.
+- Comando para testes de integração.
 - Pré-requisitos para rodar os testes (banco em pé, profile de test, etc.).
 
-### 4. Como acessar a documentacao Swagger/OpenAPI
+### 4. Como acessar a documentação Swagger/OpenAPI
 
 - URL do Swagger UI.
-- URL do JSON do OpenAPI (se aplicavel).
+- URL do JSON do OpenAPI (se aplicável).
 
 ### 5. Tecnologias utilizadas
 
-Lista com versoes das principais tecnologias:
+Lista com versões das principais tecnologias:
 
 | Categoria | Tecnologia |
 |-----------|-----------|
@@ -40,19 +40,19 @@ Lista com versoes das principais tecnologias:
 | Migrations | Liquibase |
 | Testes | JUnit 5, Mockito, H2/Testcontainers |
 | Frontend | Angular 22, TypeScript, Node.js 24 (Active LTS) |
-| Documentacao | SpringDoc OpenAPI |
+| Documentação | SpringDoc OpenAPI |
 | Infraestrutura | Docker, Docker Compose |
 
-### 6. Principais decisoes tecnicas
+### 6. Principais decisões técnicas
 
-Explicar as escolhas feitas e por que:
+Explicar as escolhas feitas e por quê:
 
 - Por que escolheu determinada estrutura de camadas.
 - Por que usou **Liquibase** / **PostgreSQL 18** / **Angular 22** / **Java 25**.
 - Como decidiu o modelo de dados.
-- Por que UUID publico + id Long interno (nao expor IDs sequenciais na API).
-- Paginacao obrigatoria nas listagens.
-- Idempotencia de confirmar/cancelar (no-op quando ja no status alvo).
+- Por que UUID público + id Long interno (não expor IDs sequenciais na API).
+- Paginação obrigatória nas listagens.
+- Idempotência de confirmar/cancelar (no-op quando já no status alvo).
 - Quais trade-offs foram feitos (ex: simplicidade vs extensibilidade).
 
 ### 7. Como a regra de vagas foi protegida
@@ -61,38 +61,38 @@ Explicar especificamente:
 
 - Qual mecanismo protege contra consumo excessivo de vagas.
 - Se usa lock otimista (`@Version`), lock pessimista (`SELECT FOR UPDATE`), ou outro mecanismo.
-- Como foi testado esse cenario.
+- Como foi testado esse cenário.
 
-### 8. Como foram testadas as regras criticas de matricula
+### 8. Como foram testadas as regras críticas de matrícula
 
 - Quais regras possuem testes.
-- Tipos de teste usados (unitario, integracao).
-- Cenarios cobertos.
+- Tipos de teste usados (unitário, integração).
+- Cenários cobertos.
 
-### 9. Limitacoes conhecidas
+### 9. Limitações conhecidas
 
-Ser honesto sobre o que nao foi implementado ou pode ser melhorado:
+Ser honesto sobre o que não foi implementado ou pode ser melhorado:
 
-- Funcionalidades nao implementadas.
-- Cenarios nao cobertos por testes.
+- Funcionalidades não implementadas.
+- Cenários não cobertos por testes.
 - Melhorias que faria com mais tempo.
 
 ### 10. Uso de IA
 
 - Quais ferramentas de IA foram utilizadas.
 - Em quais partes do projeto foram usadas.
-- Quais decisoes foram revisadas manualmente.
-- Quais trechos considera mais criticos.
+- Quais decisões foram revisadas manualmente.
+- Quais trechos considera mais críticos.
 
 ## Formato Sugerido
 
 ```markdown
-# Matricula Online
+# Matrícula Online
 
 ## Sobre o Projeto
-Breve descricao...
+Breve descrição...
 
-## Pre-requisitos
+## Pré-requisitos
 - Docker e Docker Compose
 - Java 25 (LTS)
 - Node.js 24 (Active LTS)
@@ -122,30 +122,30 @@ cd backend
 ./mvnw test
 \```
 
-## Documentacao da API
+## Documentação da API
 Swagger UI: http://localhost:8080/swagger-ui.html
 
 ## Tecnologias
 ...
 
-## Decisoes Tecnicas
+## Decisões Técnicas
 ...
 
-## Protecao da Regra de Vagas
+## Proteção da Regra de Vagas
 ...
 
-## Testes das Regras Criticas
+## Testes das Regras Críticas
 ...
 
-## Limitacoes Conhecidas
+## Limitações Conhecidas
 ...
 
 ## Uso de IA
 ...
 ```
 
-## Pontos de Atencao
+## Pontos de Atenção
 
-- O README sera lido **antes** do codigo. Primeira impressao importa.
-- Instrucoes que nao funcionam desqualificam a entrega.
-- Ser claro e conciso. Nao e necessario escrever um livro, mas cobrir todos os pontos.
+- O README será lido **antes** do código. Primeira impressão importa.
+- Instruções que não funcionam desqualificam a entrega.
+- Ser claro e conciso. Não é necessário escrever um livro, mas cobrir todos os pontos.

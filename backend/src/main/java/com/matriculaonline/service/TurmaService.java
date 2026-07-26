@@ -29,7 +29,7 @@ public class TurmaService {
     @Transactional
     public TurmaResponse criar(TurmaRequest request) {
         if (turmaRepository.existsByCodigo(request.codigo())) {
-            throw new DuplicateResourceException("Ja existe uma turma com o codigo: " + request.codigo());
+            throw new DuplicateResourceException("Já existe uma turma com o código: " + request.codigo());
         }
 
         Disciplina disciplina = disciplinaRepository.findByUuid(request.disciplinaUuid())
@@ -73,7 +73,7 @@ public class TurmaService {
     }
 
     /**
-     * Remove a turma. Idempotente: se o recurso ja nao existir, retorna sem erro (no-op).
+     * Remove a turma. Idempotente: se o recurso já não existir, retorna sem erro (no-op).
      */
     @Transactional
     public void deletar(UUID uuid) {

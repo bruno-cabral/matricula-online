@@ -1,10 +1,10 @@
 # Infraestrutura e Ambiente
 
-## Docker Compose (Obrigatorio)
+## Docker Compose (Obrigatório)
 
-O projeto deve incluir um `docker-compose.yml` que provisione pelo menos o banco de dados. A ausencia de Docker Compose ou instrucao equivalente confiavel e **criterio eliminatorio**.
+O projeto deve incluir um `docker-compose.yml` que provisione pelo menos o banco de dados. A ausência de Docker Compose ou instrução equivalente confiável é **critério eliminatório**.
 
-### Estrutura minima
+### Estrutura mínima
 
 ```yaml
 # docker-compose.yml
@@ -55,13 +55,13 @@ services:
       - backend
 ```
 
-## Execucao Local
+## Execução Local
 
 O README deve documentar passos claros para rodar o projeto:
 
-### Passo a passo minimo
+### Passo a passo mínimo
 
-1. **Pre-requisitos:** Docker, Docker Compose, **Java 25**, **Node.js 24** (LTS)
+1. **Pré-requisitos:** Docker, Docker Compose, **Java 25**, **Node.js 24** (LTS)
 2. **Subir o banco:**
    ```bash
    docker-compose up -d db
@@ -88,27 +88,27 @@ O README deve documentar passos claros para rodar o projeto:
 docker-compose up -d
 ```
 
-## Configuracao de Ambiente
+## Configuração de Ambiente
 
 ### Profiles do Spring Boot
 
 | Profile | Banco | Uso |
 |---------|-------|-----|
 | `default` / `dev` | PostgreSQL (Docker) | Desenvolvimento local |
-| `test` | H2 em memoria | Execucao de testes |
+| `test` | H2 em memória | Execução de testes |
 
-### Arquivos de configuracao
+### Arquivos de configuração
 
 ```
 src/main/resources/
-├── application.yml              # Configuracao padrao
+├── application.yml              # Configuração padrão
 ├── application-dev.yml          # Sobrescritas para desenvolvimento
 └── application-test.yml         # Sobrescritas para testes
 ```
 
-## Pontos de Atencao
+## Pontos de Atenção
 
-- O projeto **deve rodar** com as instrucoes do README. "Projeto nao roda" e criterio eliminatorio.
-- Testar o fluxo completo em maquina limpa (ou pelo menos com um `docker-compose down -v` antes).
+- O projeto **deve rodar** com as instruções do README. "Projeto não roda" é critério eliminatório.
+- Testar o fluxo completo em máquina limpa (ou pelo menos com um `docker-compose down -v` antes).
 - Garantir que as migrations executam corretamente em um banco vazio.
-- Nao deixar credenciais sensiveis no docker-compose (para o desafio, valores simples como `postgres/postgres` sao aceitaveis).
+- Não deixar credenciais sensíveis no docker-compose (para o desafio, valores simples como `postgres/postgres` são aceitáveis).

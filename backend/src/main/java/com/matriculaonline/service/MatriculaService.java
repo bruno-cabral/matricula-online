@@ -50,12 +50,12 @@ public class MatriculaService {
 
         // RN01: Matrícula apenas em turma aberta
         if (!turma.isAberta()) {
-            throw new BusinessException("Turma nao esta aberta para matriculas");
+            throw new BusinessException("Turma não está aberta para matrículas");
         }
 
         // RN02: Limite de vagas
         if (!turma.temVagasDisponiveis()) {
-            throw new BusinessException("Nao ha vagas disponiveis nesta turma");
+            throw new BusinessException("Não há vagas disponíveis nesta turma");
         }
 
         // RN03: Matrícula duplicada (apenas PENDENTE ou CONFIRMADA bloqueiam)
@@ -64,7 +64,7 @@ public class MatriculaService {
                 List.of(StatusMatricula.PENDENTE, StatusMatricula.CONFIRMADA)
         );
         if (matriculaAtiva) {
-            throw new BusinessException("Aluno ja possui matricula nesta turma");
+            throw new BusinessException("Aluno já possui matrícula nesta turma");
         }
 
         Matricula matricula = new Matricula();
@@ -107,13 +107,13 @@ public class MatriculaService {
 
             // RN04: Transição inválida CANCELADA -> CONFIRMADA
             if (matricula.isCancelada()) {
-                throw new BusinessException("Nao e permitido confirmar uma matricula cancelada");
+                throw new BusinessException("Não é permitido confirmar uma matrícula cancelada");
             }
 
             // RN05: Verifica vagas antes de confirmar
             Turma turma = matricula.getTurma();
             if (!turma.temVagasDisponiveis()) {
-                throw new BusinessException("Nao ha vagas disponiveis nesta turma");
+                throw new BusinessException("Não há vagas disponíveis nesta turma");
             }
 
             // RN05: Consumo de vaga

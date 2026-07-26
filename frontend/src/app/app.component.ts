@@ -8,12 +8,12 @@ import { NotificationService } from './services/notification.service';
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
   template: `
     <nav class="sidebar">
-      <div class="logo">Matricula Online</div>
+      <div class="logo">Matrícula Online</div>
       <a routerLink="/alunos" routerLinkActive="active">Alunos</a>
       <a routerLink="/cursos" routerLinkActive="active">Cursos</a>
       <a routerLink="/disciplinas" routerLinkActive="active">Disciplinas</a>
       <a routerLink="/turmas" routerLinkActive="active">Turmas</a>
-      <a routerLink="/matriculas" routerLinkActive="active">Matriculas</a>
+      <a routerLink="/matriculas" routerLinkActive="active">Matrículas</a>
     </nav>
 
     <main class="main-content">

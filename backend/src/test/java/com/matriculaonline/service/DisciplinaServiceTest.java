@@ -48,18 +48,18 @@ class DisciplinaServiceTest {
         disciplina = new Disciplina();
         disciplina.setId(1L);
         disciplina.setUuid(UUID.randomUUID());
-        disciplina.setNome("Programacao");
-        disciplina.setDescricao("Introducao");
+        disciplina.setNome("Programação");
+        disciplina.setDescricao("Introdução");
         disciplina.setCargaHoraria(80);
         disciplina.setCurso(curso);
     }
 
     private DisciplinaRequest request() {
-        return new DisciplinaRequest("Programacao", "Introducao", 80, curso.getUuid());
+        return new DisciplinaRequest("Programação", "Introdução", 80, curso.getUuid());
     }
 
     @Test
-    @DisplayName("Criar disciplina com curso valido - sucesso")
+    @DisplayName("Criar disciplina com curso válido - sucesso")
     void deveCriarDisciplina() {
         when(cursoRepository.findByUuid(curso.getUuid())).thenReturn(Optional.of(curso));
         when(disciplinaRepository.save(any(Disciplina.class))).thenReturn(disciplina);
@@ -67,7 +67,7 @@ class DisciplinaServiceTest {
         DisciplinaResponse response = disciplinaService.criar(request());
 
         assertThat(response).isNotNull();
-        assertThat(response.nome()).isEqualTo("Programacao");
+        assertThat(response.nome()).isEqualTo("Programação");
         assertThat(response.cursoUuid()).isEqualTo(curso.getUuid());
         verify(disciplinaRepository).save(any(Disciplina.class));
     }
@@ -109,7 +109,7 @@ class DisciplinaServiceTest {
         when(cursoRepository.findByUuid(curso.getUuid())).thenReturn(Optional.of(curso));
         when(disciplinaRepository.save(any(Disciplina.class))).thenReturn(disciplina);
 
-        DisciplinaRequest update = new DisciplinaRequest("Algoritmos", "Avancado", 120, curso.getUuid());
+        DisciplinaRequest update = new DisciplinaRequest("Algoritmos", "Avançado", 120, curso.getUuid());
         DisciplinaResponse response = disciplinaService.atualizar(disciplina.getUuid(), update);
 
         assertThat(response).isNotNull();

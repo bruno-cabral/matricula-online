@@ -51,14 +51,14 @@ class TurmaIntegrationTest {
         cursoRepository.deleteAll();
 
         Curso curso = new Curso();
-        curso.setNome("Ciencia da Computacao");
+        curso.setNome("Ciência da Computação");
         curso.setDescricao("Bacharelado");
         curso.setCargaHoraria(3200);
         curso = cursoRepository.save(curso);
 
         disciplina = new Disciplina();
         disciplina.setNome("Algoritmos");
-        disciplina.setDescricao("Introducao");
+        disciplina.setDescricao("Introdução");
         disciplina.setCargaHoraria(60);
         disciplina.setCurso(curso);
         disciplina = disciplinaRepository.save(disciplina);
@@ -115,7 +115,7 @@ class TurmaIntegrationTest {
 
         assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
-        // DELETE idempotente: recurso ja removido ainda retorna 204
+        // DELETE idempotente: recurso já removido ainda retorna 204
         ResponseEntity<Void> deleteAgainResponse = restTemplate.exchange(
                 "/api/turmas/{uuid}", HttpMethod.DELETE, null, Void.class, uuid);
 
@@ -129,7 +129,7 @@ class TurmaIntegrationTest {
     }
 
     @Test
-    @DisplayName("Criar turma com codigo duplicado retorna HTTP 409")
+    @DisplayName("Criar turma com código duplicado retorna HTTP 409")
     void criarComCodigoDuplicadoRetornaConflito() {
         TurmaRequest request = new TurmaRequest(
                 "ALG-2026-1", disciplina.getUuid(), "Prof. Ana", "2026.1", 30);
@@ -155,7 +155,7 @@ class TurmaIntegrationTest {
     }
 
     @Test
-    @DisplayName("Validacao de campos obrigatorios retorna HTTP 400")
+    @DisplayName("Validação de campos obrigatórios retorna HTTP 400")
     void validacaoCamposObrigatorios() {
         TurmaRequest invalidRequest = new TurmaRequest("", null, "", "", null);
 

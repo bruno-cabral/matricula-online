@@ -87,7 +87,7 @@ class AlunoIntegrationTest {
 
         assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
-        // DELETE idempotente: recurso ja removido ainda retorna 204
+        // DELETE idempotente: recurso já removido ainda retorna 204
         ResponseEntity<Void> deleteAgainResponse = restTemplate.exchange(
                 "/api/alunos/{uuid}", HttpMethod.DELETE, null, Void.class, uuid);
 
@@ -101,7 +101,7 @@ class AlunoIntegrationTest {
     }
 
     @Test
-    @DisplayName("Validacao de campos obrigatorios retorna HTTP 400")
+    @DisplayName("Validação de campos obrigatórios retorna HTTP 400")
     void validacaoCamposObrigatorios() {
         AlunoRequest invalidRequest = new AlunoRequest("", "", "", null);
 
@@ -114,7 +114,7 @@ class AlunoIntegrationTest {
     }
 
     @Test
-    @DisplayName("CPF com digito verificador invalido retorna HTTP 400")
+    @DisplayName("CPF com dígito verificador inválido retorna HTTP 400")
     void validacaoCpfInvalido() {
         AlunoRequest invalidRequest = new AlunoRequest(
                 "Ana Santos", "ana@email.com", "12345678901", LocalDate.of(1999, 3, 20));

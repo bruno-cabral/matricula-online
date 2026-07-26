@@ -17,7 +17,7 @@ import { Turma } from '../../../models/turma.model';
   imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div class="page-header">
-      <h2>Nova Matricula</h2>
+      <h2>Nova Matrícula</h2>
     </div>
 
     <div class="card">
@@ -83,7 +83,7 @@ export class MatriculaFormComponent implements OnInit {
   salvar(): void {
     this.matriculaService.criar(this.matricula).subscribe({
       next: () => {
-        this.notification.success('Matricula realizada com sucesso (status: PENDENTE)');
+        this.notification.success('Matrícula realizada com sucesso (status: PENDENTE)');
         this.router.navigate(['/matriculas']);
       },
       error: (err) => handleApiError(err, this.notification)

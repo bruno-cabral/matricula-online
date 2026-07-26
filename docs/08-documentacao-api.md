@@ -1,12 +1,12 @@
-# Documentacao da API (Swagger/OpenAPI)
+# Documentação da API (Swagger/OpenAPI)
 
 ## Requisito
 
-Swagger/OpenAPI deve estar disponivel para consulta e teste dos endpoints. E item obrigatorio.
+Swagger/OpenAPI deve estar disponível para consulta e teste dos endpoints. É item obrigatório.
 
-## Configuracao
+## Configuração
 
-### Dependencia Maven
+### Dependência Maven
 
 ```xml
 <dependency>
@@ -23,7 +23,7 @@ Swagger/OpenAPI deve estar disponivel para consulta e teste dos endpoints. E ite
 | Swagger UI | http://localhost:8080/swagger-ui.html |
 | OpenAPI JSON | http://localhost:8080/v3/api-docs |
 
-### Configuracao no Spring
+### Configuração no Spring
 
 ```yaml
 # application.yml
@@ -38,18 +38,18 @@ springdoc:
 ## Identificadores
 
 - Todas as rotas usam **`{uuid}`** (UUID), nunca o `id` sequencial interno.
-- Responses e refs entre recursos expoe apenas `uuid` / `alunoUuid` / `turmaUuid` / etc.
+- Responses e refs entre recursos expõe apenas `uuid` / `alunoUuid` / `turmaUuid` / etc.
 - Detalhes em [01-modelo-dominio.md](01-modelo-dominio.md).
 
-## Paginacao
+## Paginação
 
-Listagens retornam pagina (`page`, `size`, `sort`). Ver [03-requisitos-backend.md](03-requisitos-backend.md).
+Listagens retornam página (`page`, `size`, `sort`). Ver [03-requisitos-backend.md](03-requisitos-backend.md).
 
 ## Endpoints Esperados
 
 ### Aluno
 
-| Metodo | Endpoint | Descricao |
+| Método | Endpoint | Descrição |
 |--------|----------|-----------|
 | POST | /api/alunos | Cadastrar aluno |
 | GET | /api/alunos?page&size&sort | Listar alunos (paginado) |
@@ -59,7 +59,7 @@ Listagens retornam pagina (`page`, `size`, `sort`). Ver [03-requisitos-backend.m
 
 ### Curso
 
-| Metodo | Endpoint | Descricao |
+| Método | Endpoint | Descrição |
 |--------|----------|-----------|
 | POST | /api/cursos | Cadastrar curso |
 | GET | /api/cursos?page&size&sort | Listar cursos (paginado) |
@@ -69,7 +69,7 @@ Listagens retornam pagina (`page`, `size`, `sort`). Ver [03-requisitos-backend.m
 
 ### Disciplina
 
-| Metodo | Endpoint | Descricao |
+| Método | Endpoint | Descrição |
 |--------|----------|-----------|
 | POST | /api/disciplinas | Cadastrar disciplina |
 | GET | /api/disciplinas?page&size&sort | Listar disciplinas (paginado) |
@@ -79,7 +79,7 @@ Listagens retornam pagina (`page`, `size`, `sort`). Ver [03-requisitos-backend.m
 
 ### Turma
 
-| Metodo | Endpoint | Descricao |
+| Método | Endpoint | Descrição |
 |--------|----------|-----------|
 | POST | /api/turmas | Cadastrar turma |
 | GET | /api/turmas?page&size&sort | Listar turmas (paginado) |
@@ -87,32 +87,32 @@ Listagens retornam pagina (`page`, `size`, `sort`). Ver [03-requisitos-backend.m
 | PUT | /api/turmas/{uuid} | Atualizar turma |
 | DELETE | /api/turmas/{uuid} | Remover turma |
 
-### Matricula
+### Matrícula
 
-| Metodo | Endpoint | Descricao |
+| Método | Endpoint | Descrição |
 |--------|----------|-----------|
-| POST | /api/matriculas | Criar matricula (`alunoUuid`, `turmaUuid`) |
-| GET | /api/matriculas?page&size&sort&status | Listar matriculas (paginado; filtro status) |
-| GET | /api/matriculas/{uuid} | Buscar matricula por UUID |
-| PATCH | /api/matriculas/{uuid}/confirmar | Confirmar matricula (idempotente se ja CONFIRMADA) |
-| PATCH | /api/matriculas/{uuid}/cancelar | Cancelar matricula (idempotente se ja CANCELADA) |
-| GET | /api/matriculas/aluno/{alunoUuid}?page&size&status | Matriculas por aluno (paginado) |
-| GET | /api/matriculas/turma/{turmaUuid}?page&size&status | Matriculas por turma (paginado) |
+| POST | /api/matriculas | Criar matrícula (`alunoUuid`, `turmaUuid`) |
+| GET | /api/matriculas?page&size&sort&status | Listar matrículas (paginado; filtro status) |
+| GET | /api/matriculas/{uuid} | Buscar matrícula por UUID |
+| PATCH | /api/matriculas/{uuid}/confirmar | Confirmar matrícula (idempotente se já CONFIRMADA) |
+| PATCH | /api/matriculas/{uuid}/cancelar | Cancelar matrícula (idempotente se já CANCELADA) |
+| GET | /api/matriculas/aluno/{alunoUuid}?page&size&status | Matrículas por aluno (paginado) |
+| GET | /api/matriculas/turma/{turmaUuid}?page&size&status | Matrículas por turma (paginado) |
 
-## Respostas HTTP Padrao
+## Respostas HTTP Padrão
 
-| Status | Descricao | Quando usar |
+| Status | Descrição | Quando usar |
 |--------|-----------|-------------|
 | 200 | OK | GET, PUT, PATCH com sucesso |
 | 201 | Created | POST com sucesso |
 | 204 | No Content | DELETE com sucesso |
-| 400 | Bad Request | Validacao de entrada falhou |
-| 404 | Not Found | Recurso nao encontrado |
-| 409/422 | Conflict / Unprocessable | Regra de negocio violada |
+| 400 | Bad Request | Validação de entrada falhou |
+| 404 | Not Found | Recurso não encontrado |
+| 409/422 | Conflict / Unprocessable | Regra de negócio violada |
 | 500 | Internal Server Error | Erro inesperado |
 
-## Pontos de Atencao
+## Pontos de Atenção
 
 - Os endpoints devem ser testáveis diretamente pelo Swagger UI.
 - Documentar os DTOs de request e response (o SpringDoc faz isso automaticamente com as classes Java).
-- Incluir exemplos de payloads quando possivel (usando `@Schema` do OpenAPI).
+- Incluir exemplos de payloads quando possível (usando `@Schema` do OpenAPI).

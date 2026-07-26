@@ -1,52 +1,52 @@
-# Persistencia e Migrations
+# Persistência e Migrations
 
 ## Banco de Dados Relacional
 
 - Banco escolhido: **PostgreSQL 18** (major suportado mais recente; sem LTS formal — suporte de 5 anos por major).
-- Persistencia via **JPA/Hibernate**.
+- Persistência via **JPA/Hibernate**.
 - O banco deve ser provisionado via Docker Compose.
-- Controle de schema: **Liquibase** (escolha fechada; nao usar Flyway).
+- Controle de schema: **Liquibase** (escolha fechada; não usar Flyway).
 
 ## JPA/Hibernate
 
 ### Entidades Mapeadas
 
-Cada entidade do dominio deve ser mapeada com anotacoes JPA:
+Cada entidade do domínio deve ser mapeada com anotações JPA:
 
-| Anotacao | Uso |
+| Anotação | Uso |
 |----------|-----|
 | `@Entity` | Marcar como entidade JPA |
 | `@Table` | Definir nome da tabela |
-| `@Id` + `@GeneratedValue` | Chave primaria interna (`Long`) auto-gerada |
-| `@Column(unique = true, nullable = false)` | Coluna `uuid` publica (UUID) |
+| `@Id` + `@GeneratedValue` | Chave primária interna (`Long`) auto-gerada |
+| `@Column(unique = true, nullable = false)` | Coluna `uuid` pública (UUID) |
 | `@ManyToOne` / `@OneToMany` | Relacionamentos entre entidades (via `id` Long) |
 | `@Enumerated(EnumType.STRING)` | Enums persistidos como texto |
-| `@Version` | Lock otimista (diferencial para protecao de concorrencia) |
+| `@Version` | Lock otimista (diferencial para proteção de concorrência) |
 
 ### Identificadores
 
 - `id BIGSERIAL` = PK interna e alvo das FKs.
-- `uuid UUID` = identificador publico, UNIQUE, gerado na aplicacao (`UUID.randomUUID()`) ou no banco (`gen_random_uuid()`).
+- `uuid UUID` = identificador público, UNIQUE, gerado na aplicação (`UUID.randomUUID()`) ou no banco (`gen_random_uuid()`).
 - Repositories precisam de `findByUuid(UUID uuid)` para os endpoints.
 - Ver [01-modelo-dominio.md](01-modelo-dominio.md).
 
 ### Constraints Importantes
 
-| Constraint | Tabela | Descricao |
+| Constraint | Tabela | Descrição |
 |-----------|--------|-----------|
-| UNIQUE | aluno(uuid), curso(uuid), disciplina(uuid), turma(uuid), matricula(uuid) | UUID publico unico |
-| UNIQUE | aluno(email) | Email do aluno unico |
-| UNIQUE | aluno(cpf) | CPF do aluno unico |
-| UNIQUE | turma(codigo) | Codigo da turma unico |
-| UNIQUE | matricula(aluno_id, turma_id) | Considerar constraint composta ou validacao em service |
+| UNIQUE | aluno(uuid), curso(uuid), disciplina(uuid), turma(uuid), matricula(uuid) | UUID público único |
+| UNIQUE | aluno(email) | Email do aluno único |
+| UNIQUE | aluno(cpf) | CPF do aluno único |
+| UNIQUE | turma(codigo) | Código da turma único |
+| UNIQUE | matricula(aluno_id, turma_id) | Considerar constraint composta ou validação em service |
 | FK | disciplina(curso_id) | Disciplina pertence a um curso |
 | FK | turma(disciplina_id) | Turma pertence a uma disciplina |
-| FK | matricula(aluno_id) | Matricula referencia um aluno |
-| FK | matricula(turma_id) | Matricula referencia uma turma |
+| FK | matricula(aluno_id) | Matrícula referencia um aluno |
+| FK | matricula(turma_id) | Matrícula referencia uma turma |
 
 ## Migrations
 
-Obrigatorio usar **Liquibase** para controle de evolucao do schema.
+Obrigatório usar **Liquibase** para controle de evolução do schema.
 
 ### Estrutura Liquibase
 
@@ -130,7 +130,7 @@ databaseChangeLog:
 
 Alternativa aceita: changesets em **SQL formatado** (`sqlFile` / `formatted-sql`) se preferir DDL explicitamente.
 
-## Configuracao do Spring
+## Configuração do Spring
 
 ```yaml
 # application.yml
@@ -148,9 +148,9 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 ```
 
-## Pontos de Atencao
+## Pontos de Atenção
 
-- **Nao usar** `ddl-auto: create` ou `update` em producao/entrega. O Liquibase deve gerenciar o schema.
-- Usar `ddl-auto: validate` para garantir que as entidades estao alinhadas com o banco.
-- Garantir que os changesets sao **idempotentes** (nao reexecutar) e funcionam em um banco limpo.
-- Para testes, considerar H2 em memoria ou Testcontainers PostgreSQL com os mesmos changelogs.
+- **Não usar** `ddl-auto: create` ou `update` em produção/entrega. O Liquibase deve gerenciar o schema.
+- Usar `ddl-auto: validate` para garantir que as entidades estão alinhadas com o banco.
+- Garantir que os changesets são **idempotentes** (não reexecutar) e funcionam em um banco limpo.
+- Para testes, considerar H2 em memória ou Testcontainers PostgreSQL com os mesmos changelogs.

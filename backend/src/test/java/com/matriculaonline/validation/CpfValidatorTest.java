@@ -20,7 +20,7 @@ class CpfValidatorTest {
             "12345678909",
             "529.982.247-25"
     })
-    @DisplayName("CPFs validos (com e sem mascara) devem ser aceitos")
+    @DisplayName("CPFs válidos (com e sem máscara) devem ser aceitos")
     void deveAceitarCpfsValidos(String cpf) {
         assertThat(validator.isValid(cpf, null)).isTrue();
     }
@@ -35,7 +35,7 @@ class CpfValidatorTest {
             "52998224726",
             "abcdefghijk"
     })
-    @DisplayName("CPFs invalidos devem ser rejeitados")
+    @DisplayName("CPFs inválidos devem ser rejeitados")
     void deveRejeitarCpfsInvalidos(String cpf) {
         assertThat(validator.isValid(cpf, null)).isFalse();
     }
@@ -49,7 +49,7 @@ class CpfValidatorTest {
     }
 
     @Test
-    @DisplayName("Algoritmo rejeita digitos verificadores incorretos")
+    @DisplayName("Algoritmo rejeita dígitos verificadores incorretos")
     void deveRejeitarDigitoVerificadorIncorreto() {
         assertThat(CpfValidator.isCpfValido("52998224726")).isFalse();
         assertThat(CpfValidator.isCpfValido("52998224725")).isTrue();

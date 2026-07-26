@@ -2,15 +2,15 @@ databaseChangeLog:
   - changeSet:
       id: 006-seed-dados-iniciais
       author: matricula-online
-      comment: Dados basicos para primeira execucao do projeto
+      comment: Dados básicos para primeira execução do projeto
       changes:
         # --- Cursos ---
         - insert:
             tableName: curso
             columns:
               - column: { name: uuid, value: "11111111-1111-1111-1111-111111111101" }
-              - column: { name: nome, value: "Ciencia da Computacao" }
-              - column: { name: descricao, value: "Formacao em fundamentos da computacao, algoritmos e engenharia de software." }
+              - column: { name: nome, value: "Ciência da Computação" }
+              - column: { name: descricao, value: "Formação em fundamentos da computação, algoritmos e engenharia de software." }
               - column: { name: carga_horaria, valueNumeric: 3200 }
         - insert:
             tableName: curso
@@ -23,8 +23,8 @@ databaseChangeLog:
             tableName: curso
             columns:
               - column: { name: uuid, value: "11111111-1111-1111-1111-111111111103" }
-              - column: { name: nome, value: "Sistemas de Informacao" }
-              - column: { name: descricao, value: "Gestao de sistemas, bancos de dados e tecnologia aplicada aos negocios." }
+              - column: { name: nome, value: "Sistemas de Informação" }
+              - column: { name: descricao, value: "Gestão de sistemas, bancos de dados e tecnologia aplicada aos negócios." }
               - column: { name: carga_horaria, valueNumeric: 3000 }
 
         # --- Alunos ---
@@ -40,7 +40,7 @@ databaseChangeLog:
             tableName: aluno
             columns:
               - column: { name: uuid, value: "22222222-2222-2222-2222-222222222202" }
-              - column: { name: nome, value: "Joao Santos" }
+              - column: { name: nome, value: "João Santos" }
               - column: { name: email, value: "joao.santos@email.com" }
               - column: { name: cpf, value: "22233344455" }
               - column: { name: data_nascimento, valueDate: "2001-07-22" }
@@ -85,7 +85,7 @@ databaseChangeLog:
             columns:
               - column: { name: uuid, value: "33333333-3333-3333-3333-333333333302" }
               - column: { name: nome, value: "Banco de Dados" }
-              - column: { name: descricao, value: "Modelagem relacional, SQL e administracao de bancos de dados." }
+              - column: { name: descricao, value: "Modelagem relacional, SQL e administração de bancos de dados." }
               - column: { name: carga_horaria, valueNumeric: 60 }
               - column:
                   name: curso_id
@@ -95,7 +95,7 @@ databaseChangeLog:
             columns:
               - column: { name: uuid, value: "33333333-3333-3333-3333-333333333303" }
               - column: { name: nome, value: "Arquitetura de Software" }
-              - column: { name: descricao, value: "Padroes arquiteturais, microservicos e design de sistemas." }
+              - column: { name: descricao, value: "Padrões arquiteturais, microsserviços e design de sistemas." }
               - column: { name: carga_horaria, valueNumeric: 72 }
               - column:
                   name: curso_id
@@ -105,7 +105,7 @@ databaseChangeLog:
             columns:
               - column: { name: uuid, value: "33333333-3333-3333-3333-333333333304" }
               - column: { name: nome, value: "Engenharia de Requisitos" }
-              - column: { name: descricao, value: "Levantamento, analise e gestao de requisitos de software." }
+              - column: { name: descricao, value: "Levantamento, análise e gestão de requisitos de software." }
               - column: { name: carga_horaria, valueNumeric: 60 }
               - column:
                   name: curso_id
@@ -114,8 +114,8 @@ databaseChangeLog:
             tableName: disciplina
             columns:
               - column: { name: uuid, value: "33333333-3333-3333-3333-333333333305" }
-              - column: { name: nome, value: "Gestao de Projetos de TI" }
-              - column: { name: descricao, value: "Planejamento, execucao e controle de projetos de tecnologia." }
+              - column: { name: nome, value: "Gestão de Projetos de TI" }
+              - column: { name: descricao, value: "Planejamento, execução e controle de projetos de tecnologia." }
               - column: { name: carga_horaria, valueNumeric: 48 }
               - column:
                   name: curso_id

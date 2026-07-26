@@ -57,7 +57,7 @@ class MatriculaServiceTest {
         disciplina = new Disciplina();
         disciplina.setId(1L);
         disciplina.setUuid(UUID.randomUUID());
-        disciplina.setNome("Programacao");
+        disciplina.setNome("Programação");
         disciplina.setCurso(curso);
 
         aluno = new Aluno();
@@ -73,7 +73,7 @@ class MatriculaServiceTest {
         turma.setUuid(UUID.randomUUID());
         turma.setCodigo("PROG-2026-1");
         turma.setDisciplina(disciplina);
-        turma.setProfessor("Dr. Joao");
+        turma.setProfessor("Dr. João");
         turma.setSemestre("2026.1");
         turma.setVagas(30);
         turma.setVagasOcupadas(0);
@@ -92,11 +92,11 @@ class MatriculaServiceTest {
     }
 
     @Nested
-    @DisplayName("Criar Matricula")
+    @DisplayName("Criar Matrícula")
     class CriarMatricula {
 
         @Test
-        @DisplayName("Cenario 1: Matricular aluno em turma aberta com vagas - sucesso")
+        @DisplayName("Cenário 1: Matricular aluno em turma aberta com vagas - sucesso")
         void deveMatricularAlunoEmTurmaAbertaComVagas() {
             MatriculaRequest request = new MatriculaRequest(aluno.getUuid(), turma.getUuid());
             Matricula matriculaSalva = criarMatricula(StatusMatricula.PENDENTE);
@@ -114,7 +114,7 @@ class MatriculaServiceTest {
         }
 
         @Test
-        @DisplayName("Cenario 2: Matricular aluno em turma fechada - erro RN01")
+        @DisplayName("Cenário 2: Matricular aluno em turma fechada - erro RN01")
         void deveRejeitarMatriculaEmTurmaFechada() {
             turma.setStatus(StatusTurma.FECHADA);
             MatriculaRequest request = new MatriculaRequest(aluno.getUuid(), turma.getUuid());
@@ -124,11 +124,11 @@ class MatriculaServiceTest {
 
             assertThatThrownBy(() -> matriculaService.criar(request))
                     .isInstanceOf(BusinessException.class)
-                    .hasMessage("Turma nao esta aberta para matriculas");
+                    .hasMessage("Turma não está aberta para matrículas");
         }
 
         @Test
-        @DisplayName("Cenario 3: Matricular aluno em turma sem vagas - erro RN02")
+        @DisplayName("Cenário 3: Matricular aluno em turma sem vagas - erro RN02")
         void deveRejeitarMatriculaEmTurmaSemVagas() {
             turma.setVagas(30);
             turma.setVagasOcupadas(30);
@@ -139,11 +139,11 @@ class MatriculaServiceTest {
 
             assertThatThrownBy(() -> matriculaService.criar(request))
                     .isInstanceOf(BusinessException.class)
-                    .hasMessage("Nao ha vagas disponiveis nesta turma");
+                    .hasMessage("Não há vagas disponíveis nesta turma");
         }
 
         @Test
-        @DisplayName("Cenario 4: Matricula duplicada - erro RN03")
+        @DisplayName("Cenário 4: Matrícula duplicada - erro RN03")
         void deveRejeitarMatriculaDuplicada() {
             MatriculaRequest request = new MatriculaRequest(aluno.getUuid(), turma.getUuid());
 
@@ -156,11 +156,11 @@ class MatriculaServiceTest {
 
             assertThatThrownBy(() -> matriculaService.criar(request))
                     .isInstanceOf(BusinessException.class)
-                    .hasMessage("Aluno ja possui matricula nesta turma");
+                    .hasMessage("Aluno já possui matrícula nesta turma");
         }
 
         @Test
-        @DisplayName("Cenario 12: Rematricula apos cancelamento - permitido")
+        @DisplayName("Cenário 12: Rematrícula após cancelamento - permitido")
         void devePermitirRematriculaAposCancelamento() {
             MatriculaRequest request = new MatriculaRequest(aluno.getUuid(), turma.getUuid());
             Matricula novaMatricula = criarMatricula(StatusMatricula.PENDENTE);
@@ -178,11 +178,11 @@ class MatriculaServiceTest {
     }
 
     @Nested
-    @DisplayName("Confirmar Matricula")
+    @DisplayName("Confirmar Matrícula")
     class ConfirmarMatricula {
 
         @Test
-        @DisplayName("Cenario 5: Confirmar matricula pendente - sucesso RN05")
+        @DisplayName("Cenário 5: Confirmar matrícula pendente - sucesso RN05")
         void deveConfirmarMatriculaPendente() {
             Matricula matricula = criarMatricula(StatusMatricula.PENDENTE);
 
@@ -198,7 +198,7 @@ class MatriculaServiceTest {
         }
 
         @Test
-        @DisplayName("Cenario 6: Confirmar matricula sem vagas disponiveis - erro")
+        @DisplayName("Cenário 6: Confirmar matrícula sem vagas disponíveis - erro")
         void deveRejeitarConfirmacaoSemVagas() {
             turma.setVagas(1);
             turma.setVagasOcupadas(1);
@@ -208,11 +208,11 @@ class MatriculaServiceTest {
 
             assertThatThrownBy(() -> matriculaService.confirmar(matricula.getUuid()))
                     .isInstanceOf(BusinessException.class)
-                    .hasMessage("Nao ha vagas disponiveis nesta turma");
+                    .hasMessage("Não há vagas disponíveis nesta turma");
         }
 
         @Test
-        @DisplayName("Cenario 9: Confirmar matricula ja confirmada - idempotente (no-op)")
+        @DisplayName("Cenário 9: Confirmar matrícula já confirmada - idempotente (no-op)")
         void deveRetornarSucessoQuandoJaConfirmada() {
             Matricula matricula = criarMatricula(StatusMatricula.CONFIRMADA);
 
@@ -226,7 +226,7 @@ class MatriculaServiceTest {
         }
 
         @Test
-        @DisplayName("Cenario 11: Confirmar matricula cancelada - erro RN04")
+        @DisplayName("Cenário 11: Confirmar matrícula cancelada - erro RN04")
         void deveRejeitarConfirmacaoDeMatriculaCancelada() {
             Matricula matricula = criarMatricula(StatusMatricula.CANCELADA);
 
@@ -234,16 +234,16 @@ class MatriculaServiceTest {
 
             assertThatThrownBy(() -> matriculaService.confirmar(matricula.getUuid()))
                     .isInstanceOf(BusinessException.class)
-                    .hasMessage("Nao e permitido confirmar uma matricula cancelada");
+                    .hasMessage("Não é permitido confirmar uma matrícula cancelada");
         }
     }
 
     @Nested
-    @DisplayName("Cancelar Matricula")
+    @DisplayName("Cancelar Matrícula")
     class CancelarMatricula {
 
         @Test
-        @DisplayName("Cenario 7: Cancelar matricula confirmada - libera vaga RN06")
+        @DisplayName("Cenário 7: Cancelar matrícula confirmada - libera vaga RN06")
         void deveCancelarMatriculaConfirmadaELiberarVaga() {
             turma.setVagasOcupadas(1);
             Matricula matricula = criarMatricula(StatusMatricula.CONFIRMADA);
@@ -260,7 +260,7 @@ class MatriculaServiceTest {
         }
 
         @Test
-        @DisplayName("Cenario 8: Cancelar matricula pendente - sem alteracao de vagas")
+        @DisplayName("Cenário 8: Cancelar matrícula pendente - sem alteração de vagas")
         void deveCancelarMatriculaPendenteSemAlterarVagas() {
             turma.setVagasOcupadas(0);
             Matricula matricula = criarMatricula(StatusMatricula.PENDENTE);
@@ -276,7 +276,7 @@ class MatriculaServiceTest {
         }
 
         @Test
-        @DisplayName("Cenario 10: Cancelar matricula ja cancelada - idempotente (no-op)")
+        @DisplayName("Cenário 10: Cancelar matrícula já cancelada - idempotente (no-op)")
         void deveRetornarSucessoQuandoJaCancelada() {
             Matricula matricula = criarMatricula(StatusMatricula.CANCELADA);
 

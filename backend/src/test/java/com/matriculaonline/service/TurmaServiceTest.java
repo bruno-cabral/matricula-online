@@ -46,14 +46,14 @@ class TurmaServiceTest {
         disciplina = new Disciplina();
         disciplina.setId(1L);
         disciplina.setUuid(UUID.randomUUID());
-        disciplina.setNome("Programacao");
+        disciplina.setNome("Programação");
 
         turma = new Turma();
         turma.setId(1L);
         turma.setUuid(UUID.randomUUID());
         turma.setCodigo("PROG-2026-1");
         turma.setDisciplina(disciplina);
-        turma.setProfessor("Dr. Joao");
+        turma.setProfessor("Dr. João");
         turma.setSemestre("2026.1");
         turma.setVagas(30);
         turma.setVagasOcupadas(0);
@@ -61,11 +61,11 @@ class TurmaServiceTest {
     }
 
     private TurmaRequest request() {
-        return new TurmaRequest("PROG-2026-1", disciplina.getUuid(), "Dr. Joao", "2026.1", 30);
+        return new TurmaRequest("PROG-2026-1", disciplina.getUuid(), "Dr. João", "2026.1", 30);
     }
 
     @Test
-    @DisplayName("Criar turma com dados validos - sucesso")
+    @DisplayName("Criar turma com dados válidos - sucesso")
     void deveCriarTurma() {
         when(turmaRepository.existsByCodigo("PROG-2026-1")).thenReturn(false);
         when(disciplinaRepository.findByUuid(disciplina.getUuid())).thenReturn(Optional.of(disciplina));
@@ -80,13 +80,13 @@ class TurmaServiceTest {
     }
 
     @Test
-    @DisplayName("Criar turma com codigo duplicado - erro")
+    @DisplayName("Criar turma com código duplicado - erro")
     void deveRejeitarCodigoDuplicado() {
         when(turmaRepository.existsByCodigo("PROG-2026-1")).thenReturn(true);
 
         assertThatThrownBy(() -> turmaService.criar(request()))
                 .isInstanceOf(DuplicateResourceException.class)
-                .hasMessageContaining("codigo");
+                .hasMessageContaining("código");
         verify(turmaRepository, never()).save(any());
     }
 

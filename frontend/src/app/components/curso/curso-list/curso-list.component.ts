@@ -28,12 +28,12 @@ import { SortState, sortIndicator, toggleSort, toSortParam } from '../../../shar
                   Nome{{ indicator('nome') }}
                 </th>
                 <th class="sortable" [class.active]="sort().field === 'descricao'" (click)="ordenar('descricao')">
-                  Descricao{{ indicator('descricao') }}
+                  Descrição{{ indicator('descricao') }}
                 </th>
                 <th class="sortable" [class.active]="sort().field === 'cargaHoraria'" (click)="ordenar('cargaHoraria')">
-                  Carga Horaria{{ indicator('cargaHoraria') }}
+                  Carga Horária{{ indicator('cargaHoraria') }}
                 </th>
-                <th>Acoes</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -53,8 +53,8 @@ import { SortState, sortIndicator, toggleSort, toSortParam } from '../../../shar
 
           <div class="pagination">
             <button class="btn btn-outline btn-sm" [disabled]="currentPage() === 0" (click)="irParaPagina(currentPage() - 1)">Anterior</button>
-            <span>Pagina {{ currentPage() + 1 }} de {{ p.totalPages }}</span>
-            <button class="btn btn-outline btn-sm" [disabled]="currentPage() >= p.totalPages - 1" (click)="irParaPagina(currentPage() + 1)">Proxima</button>
+            <span>Página {{ currentPage() + 1 }} de {{ p.totalPages }}</span>
+            <button class="btn btn-outline btn-sm" [disabled]="currentPage() >= p.totalPages - 1" (click)="irParaPagina(currentPage() + 1)">Próxima</button>
           </div>
         } @else {
           <div class="empty-state"><p>Nenhum curso cadastrado.</p></div>
@@ -96,7 +96,7 @@ export class CursoListComponent implements OnInit {
   deletar(uuid: string): void {
     if (confirm('Tem certeza que deseja excluir este curso?')) {
       this.cursoService.deletar(uuid).subscribe({
-        next: () => { this.notification.success('Curso excluido com sucesso'); this.carregar(); },
+        next: () => { this.notification.success('Curso excluído com sucesso'); this.carregar(); },
         error: (err) => handleApiError(err, this.notification)
       });
     }

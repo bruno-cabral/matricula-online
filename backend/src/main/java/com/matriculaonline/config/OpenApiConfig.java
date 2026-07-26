@@ -13,9 +13,9 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Matricula Online - API")
+                        .title("Matrícula Online - API")
                         .version("1.0.0")
-                        .description("API REST para gerenciamento de matriculas online")
+                        .description("API REST para gerenciamento de matrículas online")
                         .contact(new Contact()
                                 .name("Matricula Online")
                                 .email("contato@matriculaonline.com")));

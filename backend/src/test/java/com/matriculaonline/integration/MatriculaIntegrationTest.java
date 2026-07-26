@@ -54,14 +54,14 @@ class MatriculaIntegrationTest {
         cursoRepository.deleteAll();
 
         Curso curso = new Curso();
-        curso.setNome("Ciencia da Computacao");
+        curso.setNome("Ciência da Computação");
         curso.setDescricao("Curso de CC");
         curso.setCargaHoraria(3200);
         curso = cursoRepository.save(curso);
 
         Disciplina disciplina = new Disciplina();
         disciplina.setNome("Algoritmos");
-        disciplina.setDescricao("Introducao a algoritmos");
+        disciplina.setDescricao("Introdução a algoritmos");
         disciplina.setCargaHoraria(60);
         disciplina.setCurso(curso);
         disciplina = disciplinaRepository.save(disciplina);
@@ -125,7 +125,7 @@ class MatriculaIntegrationTest {
     }
 
     @Test
-    @DisplayName("Matricula duplicada retorna erro via API")
+    @DisplayName("Matrícula duplicada retorna erro via API")
     void matriculaDuplicadaRetornaErro() {
         MatriculaRequest request = new MatriculaRequest(aluno.getUuid(), turma.getUuid());
 
@@ -136,11 +136,11 @@ class MatriculaIntegrationTest {
 
         assertThat(duplicadaResponse.getStatusCode().value()).isEqualTo(422);
         assertThat(duplicadaResponse.getBody()).isNotNull();
-        assertThat(duplicadaResponse.getBody().message()).contains("Aluno ja possui matricula nesta turma");
+        assertThat(duplicadaResponse.getBody().message()).contains("Aluno já possui matrícula nesta turma");
     }
 
     @Test
-    @DisplayName("Matricula em turma lotada retorna erro via API")
+    @DisplayName("Matrícula em turma lotada retorna erro via API")
     void matriculaEmTurmaLotadaRetornaErro() {
         turma.setVagas(1);
         turma.setVagasOcupadas(1);
@@ -153,11 +153,11 @@ class MatriculaIntegrationTest {
 
         assertThat(response.getStatusCode().value()).isEqualTo(422);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().message()).contains("Nao ha vagas disponiveis");
+        assertThat(response.getBody().message()).contains("Não há vagas disponíveis");
     }
 
     @Test
-    @DisplayName("Consulta de matriculas por aluno via API")
+    @DisplayName("Consulta de matrículas por aluno via API")
     void consultaMatriculasPorAluno() {
         MatriculaRequest request = new MatriculaRequest(aluno.getUuid(), turma.getUuid());
         restTemplate.postForEntity("/api/matriculas", request, MatriculaResponse.class);
@@ -170,7 +170,7 @@ class MatriculaIntegrationTest {
     }
 
     @Test
-    @DisplayName("Consulta de matriculas por turma via API")
+    @DisplayName("Consulta de matrículas por turma via API")
     void consultaMatriculasPorTurma() {
         MatriculaRequest request = new MatriculaRequest(aluno.getUuid(), turma.getUuid());
         restTemplate.postForEntity("/api/matriculas", request, MatriculaResponse.class);

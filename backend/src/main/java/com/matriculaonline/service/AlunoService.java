@@ -25,10 +25,10 @@ public class AlunoService {
     @Transactional
     public AlunoResponse criar(AlunoRequest request) {
         if (alunoRepository.existsByEmail(request.email())) {
-            throw new DuplicateResourceException("Ja existe um aluno com o email: " + request.email());
+            throw new DuplicateResourceException("Já existe um aluno com o email: " + request.email());
         }
         if (alunoRepository.existsByCpf(request.cpf())) {
-            throw new DuplicateResourceException("Ja existe um aluno com o CPF: " + request.cpf());
+            throw new DuplicateResourceException("Já existe um aluno com o CPF: " + request.cpf());
         }
 
         Aluno aluno = new Aluno();
@@ -63,7 +63,7 @@ public class AlunoService {
     }
 
     /**
-     * Remove o aluno. Idempotente: se o recurso ja nao existir, retorna sem erro (no-op).
+     * Remove o aluno. Idempotente: se o recurso já não existir, retorna sem erro (no-op).
      */
     @Transactional
     public void deletar(UUID uuid) {

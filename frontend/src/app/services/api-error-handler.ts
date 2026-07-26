@@ -8,9 +8,9 @@ export function handleApiError(error: HttpErrorResponse, notification: Notificat
       .join('\n');
     notification.error(messages);
   } else if (error.status === 422 || error.status === 409) {
-    notification.error(error.error?.message || 'Regra de negocio violada');
+    notification.error(error.error?.message || 'Regra de negócio violada');
   } else if (error.status === 404) {
-    notification.error(error.error?.message || 'Recurso nao encontrado');
+    notification.error(error.error?.message || 'Recurso não encontrado');
   } else {
     notification.error('Ocorreu um erro inesperado. Tente novamente mais tarde.');
   }

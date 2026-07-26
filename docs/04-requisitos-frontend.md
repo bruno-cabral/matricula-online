@@ -4,51 +4,51 @@
 
 **Angular 22** (TypeScript) com **Node.js 24** (Active LTS) — escolha fechada para este projeto.
 
-## Requisitos Obrigatorios
+## Requisitos Obrigatórios
 
 ### Estrutura com Componentes
 
-- O frontend deve ser **estruturado com componentes** reutilizaveis.
-- Cada funcionalidade/tela deve ter seus proprios componentes.
-- Separacao clara entre componentes de apresentacao e logica.
+- O frontend deve ser **estruturado com componentes** reutilizáveis.
+- Cada funcionalidade/tela deve ter seus próprios componentes.
+- Separação clara entre componentes de apresentação e lógica.
 
 ### Telas Separadas
 
 O frontend deve conter telas para as principais funcionalidades:
 
-| Tela | Descricao |
+| Tela | Descrição |
 |------|-----------|
-| **Alunos** | Listagem, cadastro, edicao e exclusao de alunos |
-| **Cursos** | Listagem, cadastro, edicao e exclusao de cursos |
-| **Disciplinas** | Listagem, cadastro, edicao e exclusao de disciplinas |
-| **Turmas** | Listagem, cadastro, edicao e exclusao de turmas |
-| **Matriculas** | Realizar matricula, confirmar, cancelar, consultar por aluno e por turma |
+| **Alunos** | Listagem, cadastro, edição e exclusão de alunos |
+| **Cursos** | Listagem, cadastro, edição e exclusão de cursos |
+| **Disciplinas** | Listagem, cadastro, edição e exclusão de disciplinas |
+| **Turmas** | Listagem, cadastro, edição e exclusão de turmas |
+| **Matrículas** | Realizar matrícula, confirmar, cancelar, consultar por aluno e por turma |
 
-### Filtro e paginacao na tela de Matriculas (obrigatorio)
+### Filtro e paginação na tela de Matrículas (obrigatório)
 
-A listagem de matriculas deve permitir:
+A listagem de matrículas deve permitir:
 
 | Controle | Comportamento |
 |----------|---------------|
 | **Filtro por status** | Todos / PENDENTE / CONFIRMADA / CANCELADA |
-| **Paginacao** | Navegacao de paginas consumindo `page`/`size` da API |
+| **Paginação** | Navegação de páginas consumindo `page`/`size` da API |
 
 - Usar `GET /api/matriculas?status=PENDENTE&page=0&size=20` (ou equivalente).
-- Demais listagens (alunos, cursos, disciplinas, turmas) tambem devem respeitar a paginacao da API.
-- Comportamento idempotente: confirmar ja CONFIRMADA ou cancelar ja CANCELADA retorna sucesso (ver [02-regras-negocio.md](02-regras-negocio.md)).
+- Demais listagens (alunos, cursos, disciplinas, turmas) também devem respeitar a paginação da API.
+- Comportamento idempotente: confirmar já CONFIRMADA ou cancelar já CANCELADA retorna sucesso (ver [02-regras-negocio.md](02-regras-negocio.md)).
 
 ### Tratamento de Erros
 
-- Exibir mensagens de erro claras ao usuario quando a API retornar erros.
-- Tratar erros de validacao (400) mostrando os campos invalidos.
-- Tratar erros de regra de negocio (422/409) com mensagem compreensivel.
-- Tratar erros de rede/servidor (500) com mensagem generica amigavel.
+- Exibir mensagens de erro claras ao usuário quando a API retornar erros.
+- Tratar erros de validação (400) mostrando os campos inválidos.
+- Tratar erros de regra de negócio (422/409) com mensagem compreensível.
+- Tratar erros de rede/servidor (500) com mensagem genérica amigável.
 - Evitar telas em branco ou travamentos em caso de falha.
 
 ### Consumo Organizado da API
 
-- Centralizar chamadas HTTP em **services** dedicados (um por entidade ou dominio).
-- Nao fazer chamadas HTTP diretamente nos componentes.
+- Centralizar chamadas HTTP em **services** dedicados (um por entidade ou domínio).
+- Não fazer chamadas HTTP diretamente nos componentes.
 - Usar tipagem adequada para requests e responses.
 
 ## Estrutura Sugerida (Angular)
@@ -87,26 +87,26 @@ src/app/
 
 ## Fluxos Principais
 
-### Fluxo de Matricula
+### Fluxo de Matrícula
 
 ```mermaid
 flowchart TD
-    A[Tela de Matricula] --> B[Selecionar Aluno]
+    A[Tela de Matrícula] --> B[Selecionar Aluno]
     B --> C[Selecionar Turma]
-    C --> D[Enviar matricula via POST]
+    C --> D[Enviar matrícula via POST]
     D --> E{Resposta da API}
-    E -->|Sucesso| F[Exibir confirmacao]
+    E -->|Sucesso| F[Exibir confirmação]
     E -->|Erro 422| G[Exibir mensagem de regra violada]
-    E -->|Erro 400| H[Exibir campos invalidos]
-    E -->|Erro 500| I[Exibir mensagem generica de erro]
+    E -->|Erro 400| H[Exibir campos inválidos]
+    E -->|Erro 500| I[Exibir mensagem genérica de erro]
 ```
 
-### Fluxo de Confirmacao/Cancelamento
+### Fluxo de Confirmação/Cancelamento
 
 ```mermaid
 flowchart TD
-    A[Lista de Matriculas com filtro de status] --> B[Selecionar Matricula]
-    B --> C{Acao}
+    A[Lista de Matrículas com filtro de status] --> B[Selecionar Matrícula]
+    B --> C{Ação}
     C -->|Confirmar| D[PATCH /confirmar]
     C -->|Cancelar| E[PATCH /cancelar]
     D --> F{Resposta}
@@ -115,10 +115,10 @@ flowchart TD
     F -->|Erro| H[Exibir mensagem de erro]
 ```
 
-## Pontos de Atencao
+## Pontos de Atenção
 
-- O frontend sera avaliado quanto a **organizacao e fluxo de uso**, nao apenas se funciona.
-- O **tratamento de erros** no frontend e item de avaliacao critica.
-- Nao e necessario design sofisticado, mas deve ser **funcional e navegavel**.
-- Boa organizacao do frontend e listada como **diferencial**.
-- Todas as navegacoes e chamadas HTTP usam **`uuid`** do recurso (nunca `id` numerico interno). Ver [01-modelo-dominio.md](01-modelo-dominio.md).
+- O frontend será avaliado quanto a **organização e fluxo de uso**, não apenas se funciona.
+- O **tratamento de erros** no frontend é item de avaliação crítica.
+- Não é necessário design sofisticado, mas deve ser **funcional e navegável**.
+- Boa organização do frontend é listada como **diferencial**.
+- Todas as navegações e chamadas HTTP usam **`uuid`** do recurso (nunca `id` numérico interno). Ver [01-modelo-dominio.md](01-modelo-dominio.md).

@@ -47,7 +47,7 @@ class CursoServiceTest {
     }
 
     @Test
-    @DisplayName("Criar curso com dados validos - sucesso")
+    @DisplayName("Criar curso com dados válidos - sucesso")
     void deveCriarCurso() {
         when(cursoRepository.save(any(Curso.class))).thenReturn(curso);
 
@@ -84,11 +84,11 @@ class CursoServiceTest {
         when(cursoRepository.findByUuid(curso.getUuid())).thenReturn(Optional.of(curso));
         when(cursoRepository.save(any(Curso.class))).thenReturn(curso);
 
-        CursoRequest update = new CursoRequest("Engenharia de Computacao", "Novo", 4000);
+        CursoRequest update = new CursoRequest("Engenharia de Computação", "Novo", 4000);
         CursoResponse response = cursoService.atualizar(curso.getUuid(), update);
 
         assertThat(response).isNotNull();
-        assertThat(curso.getNome()).isEqualTo("Engenharia de Computacao");
+        assertThat(curso.getNome()).isEqualTo("Engenharia de Computação");
         assertThat(curso.getCargaHoraria()).isEqualTo(4000);
         verify(cursoRepository).save(curso);
     }

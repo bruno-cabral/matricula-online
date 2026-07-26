@@ -2,20 +2,20 @@
 
 ## Como usar
 
-Marque cada item conforme for implementado. Use este checklist para acompanhar o progresso e garantir que nada obrigatorio ficou de fora.
+Marque cada item conforme for implementado. Use este checklist para acompanhar o progresso e garantir que nada obrigatório ficou de fora.
 
 ---
 
-## Obrigatorios (Eliminatorios)
+## Obrigatórios (Eliminatórios)
 
 ### Backend
 
 - [x] Java **25** com Spring Boot **4.1.x** configurado e funcional
-- [x] API REST com endpoints acessiveis
-- [x] Separacao clara de camadas (controller, service, domain, repository, DTOs)
-- [x] Validacoes de entrada com Bean Validation e mensagens claras
+- [x] API REST com endpoints acessíveis
+- [x] Separação clara de camadas (controller, service, domain, repository, DTOs)
+- [x] Validações de entrada com Bean Validation e mensagens claras
 - [x] Tratamento padronizado de erros (`@RestControllerAdvice`)
-- [x] Paginacao (`page`/`size`/`sort`) em todos os endpoints de listagem
+- [x] Paginação (`page`/`size`/`sort`) em todos os endpoints de listagem
 
 ### CRUDs
 
@@ -25,27 +25,27 @@ Marque cada item conforme for implementado. Use este checklist para acompanhar o
 - [x] CRUD de Turma (POST, GET, GET/{uuid}, PUT, DELETE)
 - [x] DTOs e path params usam apenas `uuid` (id interno Long nunca exposto)
 
-### Matricula
+### Matrícula
 
-- [x] Criar matricula (POST) com status PENDENTE (`alunoUuid`, `turmaUuid`)
-- [x] Confirmar matricula (PATCH `/{uuid}/confirmar`) com consumo de vaga
-- [x] Cancelar matricula (PATCH `/{uuid}/cancelar`) com liberacao de vaga se CONFIRMADA
-- [x] Confirmar ja CONFIRMADA e cancelar ja CANCELADA: sucesso sem alterar banco (idempotente)
-- [x] Consulta de matriculas por aluno (GET `/aluno/{alunoUuid}`)
-- [x] Consulta de matriculas por turma (GET `/turma/{turmaUuid}`)
-- [x] Listagem de matriculas com filtro por status (`?status=`)
+- [x] Criar matrícula (POST) com status PENDENTE (`alunoUuid`, `turmaUuid`)
+- [x] Confirmar matrícula (PATCH `/{uuid}/confirmar`) com consumo de vaga
+- [x] Cancelar matrícula (PATCH `/{uuid}/cancelar`) com liberação de vaga se CONFIRMADA
+- [x] Confirmar já CONFIRMADA e cancelar já CANCELADA: sucesso sem alterar banco (idempotente)
+- [x] Consulta de matrículas por aluno (GET `/aluno/{alunoUuid}`)
+- [x] Consulta de matrículas por turma (GET `/turma/{turmaUuid}`)
+- [x] Listagem de matrículas com filtro por status (`?status=`)
 
-### Regras de Negocio
+### Regras de Negócio
 
-- [x] RN01: Matricula apenas em turma aberta
+- [x] RN01: Matrícula apenas em turma aberta
 - [x] RN02: Limite de vagas respeitado
-- [x] RN03: Matricula duplicada impedida
+- [x] RN03: Matrícula duplicada impedida
 - [x] RN04: Fluxo de status (PENDENTE -> CONFIRMADA -> CANCELADA)
 - [x] RN05: Vaga consumida ao confirmar
-- [x] RN06: Vaga liberada ao cancelar matricula confirmada
+- [x] RN06: Vaga liberada ao cancelar matrícula confirmada
 - [x] RN07: Consultas por aluno e por turma
 
-### Persistencia
+### Persistência
 
 - [x] Banco de dados relacional (**PostgreSQL 18**)
 - [x] JPA/Hibernate configurado
@@ -55,39 +55,39 @@ Marque cada item conforme for implementado. Use este checklist para acompanhar o
 
 ### Testes
 
-- [x] Testes unitarios das regras criticas de matricula
-- [x] Teste: matricula em turma fechada (deve falhar)
-- [x] Teste: matricula em turma sem vagas (deve falhar)
-- [x] Teste: matricula duplicada (deve falhar)
-- [x] Teste: confirmar matricula (vaga consumida)
-- [x] Teste: cancelar matricula confirmada (vaga liberada)
-- [x] Teste: confirmar ja confirmada / cancelar ja cancelada (sucesso idempotente, sem alteracao)
-- [x] Testes de integracao/API para fluxos principais
+- [x] Testes unitários das regras críticas de matrícula
+- [x] Teste: matrícula em turma fechada (deve falhar)
+- [x] Teste: matrícula em turma sem vagas (deve falhar)
+- [x] Teste: matrícula duplicada (deve falhar)
+- [x] Teste: confirmar matrícula (vaga consumida)
+- [x] Teste: cancelar matrícula confirmada (vaga liberada)
+- [x] Teste: confirmar já confirmada / cancelar já cancelada (sucesso idempotente, sem alteração)
+- [x] Testes de integração/API para fluxos principais
 
 ### Infraestrutura
 
 - [x] Docker Compose com banco de dados
-- [x] Instrucoes de execucao local claras e funcionais
+- [x] Instruções de execução local claras e funcionais
 - [x] Projeto roda com os passos do README
 
-### Documentacao
+### Documentação
 
-- [x] Swagger/OpenAPI configurado e acessivel
-- [x] README com instrucoes de execucao
-- [x] README com instrucoes de testes
+- [x] Swagger/OpenAPI configurado e acessível
+- [x] README com instruções de execução
+- [x] README com instruções de testes
 - [x] README com tecnologias usadas
-- [x] README com decisoes tecnicas
-- [x] README com protecao da regra de vagas
-- [x] README com testes das regras criticas
-- [x] README com limitacoes conhecidas
+- [x] README com decisões técnicas
+- [x] README com proteção da regra de vagas
+- [x] README com testes das regras críticas
+- [x] README com limitações conhecidas
 - [x] README com uso de IA
 
 ### Frontend
 
 - [x] Frontend em **Angular 22** estruturado com componentes
 - [x] Telas separadas por funcionalidade
-- [x] Tela de matriculas com **filtro por status** e **paginacao**
-- [x] Listagens consumindo paginacao da API
+- [x] Tela de matrículas com **filtro por status** e **paginação**
+- [x] Listagens consumindo paginação da API
 - [x] Tratamento de erros no frontend
 - [x] Consumo organizado da API via services
 
@@ -96,17 +96,17 @@ Marque cada item conforme for implementado. Use este checklist para acompanhar o
 ## Diferenciais (Opcionais)
 
 - [ ] D01: CI executando build e testes (GitHub Actions)
-- [x] D02: Filtros avancados alem de status/paginacao obrigatorios
+- [x] D02: Filtros avançados além de status/paginação obrigatórios
 - [ ] D03: Logs estruturados (JSON)
-- [ ] D04: Eventos internos de dominio
-- [x] D05: Boa organizacao do frontend (rotas, guards, interceptors)
-- [x] D06: Testes com cenarios de erro e borda
+- [ ] D04: Eventos internos de domínio
+- [x] D05: Boa organização do frontend (rotas, guards, interceptors)
+- [x] D06: Testes com cenários de erro e borda
 - [x] D07: Tratamento transacional consistente (lock otimista/pessimista)
 - [x] D08: Uso de IA bem documentado e revisado criticamente
 
 ---
 
-## Validacao Final
+## Validação Final
 
 Antes de entregar, verificar:
 
@@ -114,10 +114,10 @@ Antes de entregar, verificar:
 - [ ] `docker-compose up -d db` funciona
 - [ ] Backend inicia sem erros
 - [ ] Frontend inicia e consome a API
-- [ ] Swagger UI acessivel em http://localhost:8080/swagger-ui.html
+- [ ] Swagger UI acessível em http://localhost:8080/swagger-ui.html
 - [ ] Testes passam com `./mvnw test`
 - [ ] Migrations executam em banco limpo
-- [ ] Fluxo completo de matricula funciona (criar -> confirmar -> consultar)
+- [ ] Fluxo completo de matrícula funciona (criar -> confirmar -> consultar)
 - [ ] Cancelamento funciona e libera vaga
-- [ ] Erros retornam mensagens claras (nao stack traces)
-- [ ] README esta completo e coerente com a implementacao
+- [ ] Erros retornam mensagens claras (não stack traces)
+- [ ] README está completo e coerente com a implementação

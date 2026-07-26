@@ -53,7 +53,7 @@ public class CursoService {
     }
 
     /**
-     * Remove o curso. Idempotente: se o recurso ja nao existir, retorna sem erro (no-op).
+     * Remove o curso. Idempotente: se o recurso já não existir, retorna sem erro (no-op).
      */
     @Transactional
     public void deletar(UUID uuid) {

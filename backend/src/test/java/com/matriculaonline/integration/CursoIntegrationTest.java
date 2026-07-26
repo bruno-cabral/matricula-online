@@ -48,14 +48,14 @@ class CursoIntegrationTest {
     @DisplayName("CRUD completo de Curso via API")
     void crudCompletoCurso() {
         // CREATE
-        CursoRequest createRequest = new CursoRequest("Ciencia da Computacao", "Bacharelado", 3200);
+        CursoRequest createRequest = new CursoRequest("Ciência da Computação", "Bacharelado", 3200);
 
         ResponseEntity<CursoResponse> createResponse = restTemplate.postForEntity(
                 "/api/cursos", createRequest, CursoResponse.class);
 
         assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(createResponse.getBody()).isNotNull();
-        assertThat(createResponse.getBody().nome()).isEqualTo("Ciencia da Computacao");
+        assertThat(createResponse.getBody().nome()).isEqualTo("Ciência da Computação");
         assertThat(createResponse.getBody().uuid()).isNotNull();
 
         var uuid = createResponse.getBody().uuid();
@@ -68,7 +68,7 @@ class CursoIntegrationTest {
         assertThat(readResponse.getBody().cargaHoraria()).isEqualTo(3200);
 
         // UPDATE
-        CursoRequest updateRequest = new CursoRequest("Ciencia da Computacao", "Bacharelado atualizado", 3600);
+        CursoRequest updateRequest = new CursoRequest("Ciência da Computação", "Bacharelado atualizado", 3600);
 
         ResponseEntity<CursoResponse> updateResponse = restTemplate.exchange(
                 "/api/cursos/{uuid}", HttpMethod.PUT,
@@ -82,7 +82,7 @@ class CursoIntegrationTest {
                 "/api/cursos?page=0&size=10", String.class);
 
         assertThat(listResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(listResponse.getBody()).contains("Ciencia da Computacao");
+        assertThat(listResponse.getBody()).contains("Ciência da Computação");
 
         // DELETE
         ResponseEntity<Void> deleteResponse = restTemplate.exchange(
@@ -90,7 +90,7 @@ class CursoIntegrationTest {
 
         assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
-        // DELETE idempotente: recurso ja removido ainda retorna 204
+        // DELETE idempotente: recurso já removido ainda retorna 204
         ResponseEntity<Void> deleteAgainResponse = restTemplate.exchange(
                 "/api/cursos/{uuid}", HttpMethod.DELETE, null, Void.class, uuid);
 
@@ -104,7 +104,7 @@ class CursoIntegrationTest {
     }
 
     @Test
-    @DisplayName("Validacao de campos obrigatorios retorna HTTP 400")
+    @DisplayName("Validação de campos obrigatórios retorna HTTP 400")
     void validacaoCamposObrigatorios() {
         CursoRequest invalidRequest = new CursoRequest("", null, null);
 

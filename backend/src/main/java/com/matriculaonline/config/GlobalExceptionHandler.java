@@ -23,16 +23,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
-        log.warn("Recurso nao encontrado: {}", ex.getMessage());
+        log.warn("Recurso não encontrado: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ErrorResponse.of(404, "Recurso nao encontrado", ex.getMessage()));
+                .body(ErrorResponse.of(404, "Recurso não encontrado", ex.getMessage()));
     }
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusiness(BusinessException ex) {
-        log.warn("Regra de negocio violada: {}", ex.getMessage());
+        log.warn("Regra de negócio violada: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                .body(ErrorResponse.of(422, "Regra de negocio violada", ex.getMessage()));
+                .body(ErrorResponse.of(422, "Regra de negócio violada", ex.getMessage()));
     }
 
     @ExceptionHandler(DuplicateResourceException.class)
@@ -53,22 +53,22 @@ public class GlobalExceptionHandler {
                 ))
                 .toList();
 
-        log.warn("Erro de validacao: {} campo(s) invalido(s)", details.size());
+        log.warn("Erro de validação: {} campo(s) inválido(s)", details.size());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ValidationErrorResponse.of(400, "Erro de validacao", details));
+                .body(ValidationErrorResponse.of(400, "Erro de validação", details));
     }
 
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity<ErrorResponse> handleOptimisticLock(ObjectOptimisticLockingFailureException ex) {
-        log.warn("Conflito de concorrencia (optimistic lock): {}", ex.getMessage());
+        log.warn("Conflito de concorrência (optimistic lock): {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ErrorResponse.of(409, "Conflito de concorrencia",
-                        "A operacao falhou devido a uma modificacao concorrente. Tente novamente."));
+                .body(ErrorResponse.of(409, "Conflito de concorrência",
+                        "A operação falhou devido a uma modificação concorrente. Tente novamente."));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
-        log.error("Erro interno nao tratado", ex);
+        log.error("Erro interno não tratado", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ErrorResponse.of(500, "Erro interno do servidor",
                         "Ocorreu um erro inesperado. Tente novamente mais tarde."));

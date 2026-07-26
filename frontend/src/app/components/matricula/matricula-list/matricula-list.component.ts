@@ -21,8 +21,8 @@ type ConsultaTipo = 'todas' | 'aluno' | 'turma';
   imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div class="page-header">
-      <h2>Matriculas</h2>
-      <a routerLink="/matriculas/nova" class="btn btn-primary">+ Nova Matricula</a>
+      <h2>Matrículas</h2>
+      <a routerLink="/matriculas/nova" class="btn btn-primary">+ Nova Matrícula</a>
     </div>
 
     <div class="card">
@@ -30,7 +30,7 @@ type ConsultaTipo = 'todas' | 'aluno' | 'turma';
         <div class="filter-group">
           <label for="consultaTipo">Consultar:</label>
           <select id="consultaTipo" [ngModel]="consultaTipo()" (ngModelChange)="alterarConsulta($event)">
-            <option value="todas">Todas as matriculas</option>
+            <option value="todas">Todas as matrículas</option>
             <option value="aluno">Por aluno</option>
             <option value="turma">Por turma</option>
           </select>
@@ -72,9 +72,9 @@ type ConsultaTipo = 'todas' | 'aluno' | 'turma';
       </div>
 
       @if (consultaTipo() === 'aluno' && !alunoUuid()) {
-        <div class="empty-state"><p>Selecione um aluno para consultar as matriculas.</p></div>
+        <div class="empty-state"><p>Selecione um aluno para consultar as matrículas.</p></div>
       } @else if (consultaTipo() === 'turma' && !turmaUuid()) {
-        <div class="empty-state"><p>Selecione uma turma para consultar as matriculas.</p></div>
+        <div class="empty-state"><p>Selecione uma turma para consultar as matrículas.</p></div>
       } @else if (page(); as p) {
         @if (p.content.length > 0) {
           <table>
@@ -90,9 +90,9 @@ type ConsultaTipo = 'todas' | 'aluno' | 'turma';
                   Status{{ indicator('status') }}
                 </th>
                 <th class="sortable" [class.active]="sort().field === 'dataMatricula'" (click)="ordenar('dataMatricula')">
-                  Data Matricula{{ indicator('dataMatricula') }}
+                  Data Matrícula{{ indicator('dataMatricula') }}
                 </th>
-                <th>Acoes</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -126,11 +126,11 @@ type ConsultaTipo = 'todas' | 'aluno' | 'turma';
 
           <div class="pagination">
             <button class="btn btn-outline btn-sm" [disabled]="currentPage() === 0" (click)="irParaPagina(currentPage() - 1)">Anterior</button>
-            <span>Pagina {{ currentPage() + 1 }} de {{ p.totalPages }} ({{ p.totalElements }} registros)</span>
-            <button class="btn btn-outline btn-sm" [disabled]="currentPage() >= p.totalPages - 1" (click)="irParaPagina(currentPage() + 1)">Proxima</button>
+            <span>Página {{ currentPage() + 1 }} de {{ p.totalPages }} ({{ p.totalElements }} registros)</span>
+            <button class="btn btn-outline btn-sm" [disabled]="currentPage() >= p.totalPages - 1" (click)="irParaPagina(currentPage() + 1)">Próxima</button>
           </div>
         } @else {
-          <div class="empty-state"><p>Nenhuma matricula encontrada para esta consulta.</p></div>
+          <div class="empty-state"><p>Nenhuma matrícula encontrada para esta consulta.</p></div>
         }
       } @else {
         <div class="empty-state"><p>Carregando...</p></div>
@@ -295,15 +295,15 @@ export class MatriculaListComponent implements OnInit {
 
   confirmar(uuid: string): void {
     this.matriculaService.confirmar(uuid).subscribe({
-      next: () => { this.notification.success('Matricula confirmada com sucesso'); this.carregar(); },
+      next: () => { this.notification.success('Matrícula confirmada com sucesso'); this.carregar(); },
       error: (err) => handleApiError(err, this.notification)
     });
   }
 
   cancelar(uuid: string): void {
-    if (confirm('Tem certeza que deseja cancelar esta matricula?')) {
+    if (confirm('Tem certeza que deseja cancelar esta matrícula?')) {
       this.matriculaService.cancelar(uuid).subscribe({
-        next: () => { this.notification.success('Matricula cancelada'); this.carregar(); },
+        next: () => { this.notification.success('Matrícula cancelada'); this.carregar(); },
         error: (err) => handleApiError(err, this.notification)
       });
     }

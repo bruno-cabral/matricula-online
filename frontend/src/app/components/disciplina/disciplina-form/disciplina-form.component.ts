@@ -26,13 +26,13 @@ import { Curso } from '../../../models/curso.model';
         </div>
 
         <div class="form-group">
-          <label for="descricao">Descricao</label>
+          <label for="descricao">Descrição</label>
           <textarea id="descricao" [(ngModel)]="disciplina.descricao" name="descricao" rows="3"></textarea>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label for="cargaHoraria">Carga Horaria (horas)</label>
+            <label for="cargaHoraria">Carga Horária (horas)</label>
             <input id="cargaHoraria" type="number" [(ngModel)]="disciplina.cargaHoraria" name="cargaHoraria" required min="1">
           </div>
           <div class="form-group">

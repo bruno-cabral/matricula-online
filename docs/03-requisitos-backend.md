@@ -7,48 +7,48 @@
 - Banco **PostgreSQL 18** com JPA/Hibernate
 - Migrations com **Liquibase**
 
-## Separacao de Camadas
+## Separação de Camadas
 
-O desafio exige **separacao clara** entre as camadas. Codigo concentrado em controllers sera avaliado negativamente.
+O desafio exige **separação clara** entre as camadas. Código concentrado em controllers será avaliado negativamente.
 
 ```
 src/main/java/com/matriculaonline/
 ├── controller/          # Controllers REST (entrada HTTP)
 ├── dto/                 # DTOs de request e response
-├── service/             # Logica de aplicacao e orquestracao
+├── service/             # Lógica de aplicação e orquestração
 ├── domain/
-│   ├── model/           # Entidades de dominio e enums
-│   └── exception/       # Excecoes de dominio
-├── repository/          # Interfaces JPA / persistencia
-└── config/              # Configuracoes (Swagger, CORS, etc)
+│   ├── model/           # Entidades de domínio e enums
+│   └── exception/       # Exceções de domínio
+├── repository/          # Interfaces JPA / persistência
+└── config/              # Configurações (Swagger, CORS, etc)
 ```
 
 ### Responsabilidades por camada
 
 | Camada | Responsabilidade |
 |--------|-----------------|
-| **Controller** | Receber requisicoes HTTP, validar entrada (Bean Validation), delegar para service, retornar DTOs |
-| **DTO** | Objetos de transferencia para request/response, desacoplados das entidades |
-| **Service / Application** | Orquestrar logica de negocio, aplicar regras, gerenciar transacoes |
-| **Domain / Model** | Entidades JPA, enums, regras intrinsecas ao dominio |
+| **Controller** | Receber requisições HTTP, validar entrada (Bean Validation), delegar para service, retornar DTOs |
+| **DTO** | Objetos de transferência para request/response, desacoplados das entidades |
+| **Service / Application** | Orquestrar lógica de negócio, aplicar regras, gerenciar transações |
+| **Domain / Model** | Entidades JPA, enums, regras intrínsecas ao domínio |
 | **Repository / Persistence** | Acesso a dados via Spring Data JPA |
-| **Config** | Configuracoes transversais (Swagger, CORS, exception handler global) |
+| **Config** | Configurações transversais (Swagger, CORS, exception handler global) |
 
 ## Identificadores na API
 
 - Path params e responses usam **`uuid`** (nunca o `id` sequencial interno).
-- DTOs de response incluem `uuid` e **nao** incluem `id`.
-- Referencias entre recursos (ex: criar matricula) usam `alunoUuid` e `turmaUuid`.
+- DTOs de response incluem `uuid` e **não** incluem `id`.
+- Referências entre recursos (ex: criar matrícula) usam `alunoUuid` e `turmaUuid`.
 - Ver detalhe em [01-modelo-dominio.md](01-modelo-dominio.md).
 
-## Paginacao (obrigatorio)
+## Paginação (obrigatório)
 
-Todos os endpoints de **listagem** (`GET` colecao) devem ser paginados via Spring Data `Pageable`.
+Todos os endpoints de **listagem** (`GET` coleção) devem ser paginados via Spring Data `Pageable`.
 
-| Query param | Padrao | Descricao |
+| Query param | Padrão | Descrição |
 |-------------|--------|-----------|
-| `page` | `0` | Indice da pagina (zero-based) |
-| `size` | `20` | Tamanho da pagina |
+| `page` | `0` | Índice da página (zero-based) |
+| `size` | `20` | Tamanho da página |
 | `sort` | conforme recurso | Ex: `sort=nome,asc` |
 
 Formato de resposta sugerido (`Page` do Spring ou DTO equivalente):
@@ -71,9 +71,9 @@ GET /api/matriculas/aluno/{alunoUuid}?page=0&size=10
 GET /api/turmas?page=0&size=10&sort=codigo,asc
 ```
 
-## CRUDs Obrigatorios
+## CRUDs Obrigatórios
 
-Cada entidade deve ter operacoes basicas de CRUD (listagens **paginadas**):
+Cada entidade deve ter operações básicas de CRUD (listagens **paginadas**):
 
 | Entidade | Create | Read (lista paginada) | Read (por uuid) | Update | Delete |
 |----------|--------|----------------------|-----------------|--------|--------|
@@ -82,40 +82,40 @@ Cada entidade deve ter operacoes basicas de CRUD (listagens **paginadas**):
 | Disciplina | POST /api/disciplinas | GET /api/disciplinas?page&size&sort | GET /api/disciplinas/{uuid} | PUT /api/disciplinas/{uuid} | DELETE /api/disciplinas/{uuid} |
 | Turma | POST /api/turmas | GET /api/turmas?page&size&sort | GET /api/turmas/{uuid} | PUT /api/turmas/{uuid} | DELETE /api/turmas/{uuid} |
 
-## Endpoints de Matricula
+## Endpoints de Matrícula
 
-Alem do CRUD basico, a matricula possui operacoes especificas:
+Além do CRUD básico, a matrícula possui operações específicas:
 
-| Metodo | Endpoint | Descricao |
+| Método | Endpoint | Descrição |
 |--------|----------|-----------|
-| POST | /api/matriculas | Criar matricula (status PENDENTE); body com `alunoUuid` e `turmaUuid` |
-| GET | /api/matriculas?page&size&sort&status | Listar matriculas (paginado; filtro opcional por status) |
-| GET | /api/matriculas/{uuid} | Buscar matricula por UUID |
-| PATCH | /api/matriculas/{uuid}/confirmar | Confirmar matricula (idempotente se ja CONFIRMADA) |
-| PATCH | /api/matriculas/{uuid}/cancelar | Cancelar matricula (idempotente se ja CANCELADA) |
-| GET | /api/matriculas/aluno/{alunoUuid}?page&size&status | Matriculas por aluno (paginado) |
-| GET | /api/matriculas/turma/{turmaUuid}?page&size&status | Matriculas por turma (paginado) |
+| POST | /api/matriculas | Criar matrícula (status PENDENTE); body com `alunoUuid` e `turmaUuid` |
+| GET | /api/matriculas?page&size&sort&status | Listar matrículas (paginado; filtro opcional por status) |
+| GET | /api/matriculas/{uuid} | Buscar matrícula por UUID |
+| PATCH | /api/matriculas/{uuid}/confirmar | Confirmar matrícula (idempotente se já CONFIRMADA) |
+| PATCH | /api/matriculas/{uuid}/cancelar | Cancelar matrícula (idempotente se já CANCELADA) |
+| GET | /api/matriculas/aluno/{alunoUuid}?page&size&status | Matrículas por aluno (paginado) |
+| GET | /api/matriculas/turma/{turmaUuid}?page&size&status | Matrículas por turma (paginado) |
 
-## Validacoes de Entrada
+## Validações de Entrada
 
 - Usar **Bean Validation** (`@NotNull`, `@NotBlank`, `@Email`, `@Size`, etc.) nos DTOs de request.
-- Mensagens de validacao devem ser **claras e consistentes**.
-- Retornar HTTP 400 com detalhes dos campos invalidos.
+- Mensagens de validação devem ser **claras e consistentes**.
+- Retornar HTTP 400 com detalhes dos campos inválidos.
 
-Exemplo de resposta de validacao:
+Exemplo de resposta de validação:
 
 ```json
 {
   "status": 400,
-  "error": "Erro de validacao",
+  "error": "Erro de validação",
   "details": [
     {
       "campo": "nome",
-      "mensagem": "Nome e obrigatorio"
+      "mensagem": "Nome é obrigatório"
     },
     {
       "campo": "email",
-      "mensagem": "Email deve ser valido"
+      "mensagem": "Email deve ser válido"
     }
   ]
 }
@@ -123,26 +123,26 @@ Exemplo de resposta de validacao:
 
 ## Tratamento Padronizado de Erros
 
-- Implementar um **`@RestControllerAdvice`** global para capturar excecoes.
-- Evitar respostas genericas (ex: 500 sem detalhes).
+- Implementar um **`@RestControllerAdvice`** global para capturar exceções.
+- Evitar respostas genéricas (ex: 500 sem detalhes).
 - Padronizar o formato de erro em toda a API.
 
 Tipos de erro a tratar:
 
-| Excecao | HTTP Status | Descricao |
+| Exceção | HTTP Status | Descrição |
 |---------|------------|-----------|
-| Entidade nao encontrada | 404 | Recurso nao existe |
-| Validacao de entrada | 400 | Campos invalidos |
-| Regra de negocio violada | 422 ou 409 | Ex: turma lotada, matricula duplicada |
+| Entidade não encontrada | 404 | Recurso não existe |
+| Validação de entrada | 400 | Campos inválidos |
+| Regra de negócio violada | 422 ou 409 | Ex: turma lotada, matrícula duplicada |
 | Erro inesperado | 500 | Erro interno do servidor |
 
-Formato padrao de erro:
+Formato padrão de erro:
 
 ```json
 {
   "status": 422,
-  "error": "Regra de negocio violada",
-  "message": "Nao ha vagas disponiveis nesta turma",
+  "error": "Regra de negócio violada",
+  "message": "Não há vagas disponíveis nesta turma",
   "timestamp": "2025-01-15T10:30:00"
 }
 ```

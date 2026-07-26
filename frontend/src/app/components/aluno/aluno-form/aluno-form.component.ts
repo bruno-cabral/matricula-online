@@ -25,7 +25,7 @@ import { CpfValidatorDirective } from '../../../directives/cpf-validator.directi
             <input id="nome" type="text" [(ngModel)]="aluno.nome" name="nome" required
                    [class.invalid]="nomeField.invalid && nomeField.touched" #nomeField="ngModel">
             @if (nomeField.invalid && nomeField.touched) {
-              <span class="error-msg">Nome e obrigatorio</span>
+              <span class="error-msg">Nome é obrigatório</span>
             }
           </div>
           <div class="form-group">
@@ -33,7 +33,7 @@ import { CpfValidatorDirective } from '../../../directives/cpf-validator.directi
             <input id="email" type="email" [(ngModel)]="aluno.email" name="email" required email
                    [class.invalid]="emailField.invalid && emailField.touched" #emailField="ngModel">
             @if (emailField.invalid && emailField.touched) {
-              <span class="error-msg">Email valido e obrigatorio</span>
+              <span class="error-msg">Email válido é obrigatório</span>
             }
           </div>
         </div>
@@ -45,9 +45,9 @@ import { CpfValidatorDirective } from '../../../directives/cpf-validator.directi
                    maxlength="14"
                    [class.invalid]="cpfField.invalid && cpfField.touched" #cpfField="ngModel">
             @if (cpfField.errors?.['required'] && cpfField.touched) {
-              <span class="error-msg">CPF e obrigatorio</span>
+              <span class="error-msg">CPF é obrigatório</span>
             } @else if (cpfField.errors?.['cpf'] && cpfField.touched) {
-              <span class="error-msg">CPF invalido</span>
+              <span class="error-msg">CPF inválido</span>
             }
           </div>
           <div class="form-group">
@@ -55,7 +55,7 @@ import { CpfValidatorDirective } from '../../../directives/cpf-validator.directi
             <input id="dataNascimento" type="date" [(ngModel)]="aluno.dataNascimento" name="dataNascimento" required
                    [class.invalid]="dataField.invalid && dataField.touched" #dataField="ngModel">
             @if (dataField.invalid && dataField.touched) {
-              <span class="error-msg">Data de nascimento e obrigatoria</span>
+              <span class="error-msg">Data de nascimento é obrigatória</span>
             }
           </div>
         </div>

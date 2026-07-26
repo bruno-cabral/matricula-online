@@ -23,21 +23,21 @@ import { CursoRequest } from '../../../models/curso.model';
           <input id="nome" type="text" [(ngModel)]="curso.nome" name="nome" required
                  [class.invalid]="nomeField.invalid && nomeField.touched" #nomeField="ngModel">
           @if (nomeField.invalid && nomeField.touched) {
-            <span class="error-msg">Nome e obrigatorio</span>
+            <span class="error-msg">Nome é obrigatório</span>
           }
         </div>
 
         <div class="form-group">
-          <label for="descricao">Descricao</label>
+          <label for="descricao">Descrição</label>
           <textarea id="descricao" [(ngModel)]="curso.descricao" name="descricao" rows="3"></textarea>
         </div>
 
         <div class="form-group">
-          <label for="cargaHoraria">Carga Horaria (horas)</label>
+          <label for="cargaHoraria">Carga Horária (horas)</label>
           <input id="cargaHoraria" type="number" [(ngModel)]="curso.cargaHoraria" name="cargaHoraria" required min="1"
                  [class.invalid]="chField.invalid && chField.touched" #chField="ngModel">
           @if (chField.invalid && chField.touched) {
-            <span class="error-msg">Carga horaria e obrigatoria e deve ser maior que zero</span>
+            <span class="error-msg">Carga horária é obrigatória e deve ser maior que zero</span>
           }
         </div>
 

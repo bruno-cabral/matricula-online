@@ -25,7 +25,7 @@ import { SortState, sortIndicator, toggleSort, toSortParam } from '../../../shar
             <thead>
               <tr>
                 <th class="sortable" [class.active]="sort().field === 'codigo'" (click)="ordenar('codigo')">
-                  Codigo{{ indicator('codigo') }}
+                  Código{{ indicator('codigo') }}
                 </th>
                 <th class="sortable" [class.active]="sort().field === 'disciplina.nome'" (click)="ordenar('disciplina.nome')">
                   Disciplina{{ indicator('disciplina.nome') }}
@@ -42,7 +42,7 @@ import { SortState, sortIndicator, toggleSort, toSortParam } from '../../../shar
                 <th class="sortable" [class.active]="sort().field === 'status'" (click)="ordenar('status')">
                   Status{{ indicator('status') }}
                 </th>
-                <th>Acoes</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -59,7 +59,7 @@ import { SortState, sortIndicator, toggleSort, toSortParam } from '../../../shar
                     </span>
                   </td>
                   <td class="actions">
-                    <a [routerLink]="['/matriculas']" [queryParams]="{ turmaUuid: t.uuid }" class="btn btn-outline btn-sm">Matriculas</a>
+                    <a [routerLink]="['/matriculas']" [queryParams]="{ turmaUuid: t.uuid }" class="btn btn-outline btn-sm">Matrículas</a>
                     <a [routerLink]="['/turmas/editar', t.uuid]" class="btn btn-outline btn-sm">Editar</a>
                     <button class="btn btn-danger btn-sm" (click)="deletar(t.uuid)">Excluir</button>
                   </td>
@@ -70,8 +70,8 @@ import { SortState, sortIndicator, toggleSort, toSortParam } from '../../../shar
 
           <div class="pagination">
             <button class="btn btn-outline btn-sm" [disabled]="currentPage() === 0" (click)="irParaPagina(currentPage() - 1)">Anterior</button>
-            <span>Pagina {{ currentPage() + 1 }} de {{ p.totalPages }}</span>
-            <button class="btn btn-outline btn-sm" [disabled]="currentPage() >= p.totalPages - 1" (click)="irParaPagina(currentPage() + 1)">Proxima</button>
+            <span>Página {{ currentPage() + 1 }} de {{ p.totalPages }}</span>
+            <button class="btn btn-outline btn-sm" [disabled]="currentPage() >= p.totalPages - 1" (click)="irParaPagina(currentPage() + 1)">Próxima</button>
           </div>
         } @else {
           <div class="empty-state"><p>Nenhuma turma cadastrada.</p></div>
@@ -113,7 +113,7 @@ export class TurmaListComponent implements OnInit {
   deletar(uuid: string): void {
     if (confirm('Excluir turma?')) {
       this.turmaService.deletar(uuid).subscribe({
-        next: () => { this.notification.success('Turma excluida'); this.carregar(); },
+        next: () => { this.notification.success('Turma excluída'); this.carregar(); },
         error: (err) => handleApiError(err, this.notification)
       });
     }
