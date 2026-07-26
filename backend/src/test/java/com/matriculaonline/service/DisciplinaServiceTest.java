@@ -1,0 +1,151 @@
+package com.matriculaonline.service;
+
+import com.matriculaonline.domain.exception.ResourceNotFoundException;
+import com.matriculaonline.domain.model.Curso;
+import com.matriculaonline.domain.model.Disciplina;
+import com.matriculaonline.dto.request.DisciplinaRequest;
+import com.matriculaonline.dto.response.DisciplinaResponse;
+import com.matriculaonline.repository.CursoRepository;
+import com.matriculaonline.repository.DisciplinaRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class DisciplinaServiceTest {
+
+    @Mock
+    private DisciplinaRepository disciplinaRepository;
+
+    @Mock
+    private CursoRepository cursoRepository;
+
+    @InjectMocks
+    private DisciplinaService disciplinaService;
+
+    private Curso curso;
+    private Disciplina disciplina;
+
+    @BeforeEach
+    void setUp() {
+        curso = new Curso();
+        curso.setId(1L);
+        curso.setUuid(UUID.randomUUID());
+        curso.setNome("Engenharia de Software");
+
+        disciplina = new Disciplina();
+        disciplina.setId(1L);
+        disciplina.setUuid(UUID.randomUUID());
+        disciplina.setNome("Programacao");
+        disciplina.setDescricao("Introducao");
+        disciplina.setCargaHoraria(80);
+        disciplina.setCurso(curso);
+    }
+
+    private DisciplinaRequest request() {
+        return new DisciplinaRequest("Programacao", "Introducao", 80, curso.getUuid());
+    }
+
+    @Test
+    @DisplayName("Criar disciplina com curso valido - sucesso")
+    void deveCriarDisciplina() {
+        when(cursoRepository.findByUuid(curso.getUuid())).thenReturn(Optional.of(curso));
+        when(disciplinaRepository.save(any(Disciplina.class))).thenReturn(disciplina);
+
+        DisciplinaResponse response = disciplinaService.criar(request());
+
+        assertThat(response).isNotNull();
+        assertThat(response.nome()).isEqualTo("Programacao");
+        assertThat(response.cursoUuid()).isEqualTo(curso.getUuid());
+        verify(disciplinaRepository).save(any(Disciplina.class));
+    }
+
+    @Test
+    @DisplayName("Criar disciplina com curso inexistente - erro")
+    void deveRejeitarCriacaoComCursoInexistente() {
+        when(cursoRepository.findByUuid(curso.getUuid())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> disciplinaService.criar(request()))
+                .isInstanceOf(ResourceNotFoundException.class);
+        verify(disciplinaRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Buscar disciplina por UUID existente - sucesso")
+    void deveBuscarDisciplinaPorUuid() {
+        when(disciplinaRepository.findByUuid(disciplina.getUuid())).thenReturn(Optional.of(disciplina));
+
+        DisciplinaResponse response = disciplinaService.buscarPorUuid(disciplina.getUuid());
+
+        assertThat(response.uuid()).isEqualTo(disciplina.getUuid());
+    }
+
+    @Test
+    @DisplayName("Buscar disciplina por UUID inexistente - erro")
+    void deveLancarErroQuandoDisciplinaNaoEncontrada() {
+        UUID uuid = UUID.randomUUID();
+        when(disciplinaRepository.findByUuid(uuid)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> disciplinaService.buscarPorUuid(uuid))
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("Atualizar disciplina existente - sucesso")
+    void deveAtualizarDisciplina() {
+        when(disciplinaRepository.findByUuid(disciplina.getUuid())).thenReturn(Optional.of(disciplina));
+        when(cursoRepository.findByUuid(curso.getUuid())).thenReturn(Optional.of(curso));
+        when(disciplinaRepository.save(any(Disciplina.class))).thenReturn(disciplina);
+
+        DisciplinaRequest update = new DisciplinaRequest("Algoritmos", "Avancado", 120, curso.getUuid());
+        DisciplinaResponse response = disciplinaService.atualizar(disciplina.getUuid(), update);
+
+        assertThat(response).isNotNull();
+        assertThat(disciplina.getNome()).isEqualTo("Algoritmos");
+        assertThat(disciplina.getCargaHoraria()).isEqualTo(120);
+        verify(disciplinaRepository).save(disciplina);
+    }
+
+    @Test
+    @DisplayName("Atualizar disciplina inexistente - erro")
+    void deveLancarErroAoAtualizarDisciplinaInexistente() {
+        UUID uuid = UUID.randomUUID();
+        when(disciplinaRepository.findByUuid(uuid)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> disciplinaService.atualizar(uuid, request()))
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("Deletar disciplina existente - remove entidade")
+    void deveDeletarDisciplinaExistente() {
+        when(disciplinaRepository.findByUuid(disciplina.getUuid())).thenReturn(Optional.of(disciplina));
+
+        disciplinaService.deletar(disciplina.getUuid());
+
+        verify(disciplinaRepository).delete(disciplina);
+    }
+
+    @Test
+    @DisplayName("Deletar disciplina inexistente - idempotente (no-op, sem erro)")
+    void deveSerIdempotenteAoDeletarInexistente() {
+        UUID uuid = UUID.randomUUID();
+        when(disciplinaRepository.findByUuid(uuid)).thenReturn(Optional.empty());
+
+        disciplinaService.deletar(uuid);
+
+        verify(disciplinaRepository, never()).delete(any());
+    }
+}
