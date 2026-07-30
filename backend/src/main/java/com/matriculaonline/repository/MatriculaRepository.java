@@ -27,4 +27,8 @@ public interface MatriculaRepository extends JpaRepository<Matricula, Long> {
     Page<Matricula> findByTurmaUuidAndStatus(UUID turmaUuid, StatusMatricula status, Pageable pageable);
 
     Page<Matricula> findByStatus(StatusMatricula status, Pageable pageable);
+
+    boolean existsByAlunoUuid(UUID alunoUuid);
+
+    boolean existsByTurmaUuid(UUID turmaUuid);
 }

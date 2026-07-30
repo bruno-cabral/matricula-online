@@ -1,5 +1,6 @@
 package com.matriculaonline.service;
 
+import com.matriculaonline.domain.exception.BusinessException;
 import com.matriculaonline.domain.exception.DuplicateResourceException;
 import com.matriculaonline.domain.exception.ResourceNotFoundException;
 import com.matriculaonline.domain.model.Aluno;
@@ -7,6 +8,7 @@ import com.matriculaonline.dto.request.AlunoRequest;
 import com.matriculaonline.dto.response.AlunoResponse;
 import com.matriculaonline.dto.response.PageResponse;
 import com.matriculaonline.repository.AlunoRepository;
+import com.matriculaonline.repository.MatriculaRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,9 +19,11 @@ import java.util.UUID;
 public class AlunoService {
 
     private final AlunoRepository alunoRepository;
+    private final MatriculaRepository matriculaRepository;
 
-    public AlunoService(AlunoRepository alunoRepository) {
+    public AlunoService(AlunoRepository alunoRepository, MatriculaRepository matriculaRepository) {
         this.alunoRepository = alunoRepository;
+        this.matriculaRepository = matriculaRepository;
     }
 
     @Transactional
@@ -67,6 +71,11 @@ public class AlunoService {
      */
     @Transactional
     public void deletar(UUID uuid) {
-        alunoRepository.findByUuid(uuid).ifPresent(alunoRepository::delete);
+        alunoRepository.findByUuid(uuid).ifPresent(aluno -> {
+            if (matriculaRepository.existsByAlunoUuid(uuid)) {
+                throw new BusinessException("Aluno possui matrículas vinculadas.");
+            }
+            alunoRepository.delete(aluno);
+        });
     }
 }

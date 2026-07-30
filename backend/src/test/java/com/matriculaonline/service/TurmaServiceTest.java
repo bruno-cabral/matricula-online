@@ -1,5 +1,6 @@
 package com.matriculaonline.service;
 
+import com.matriculaonline.domain.exception.BusinessException;
 import com.matriculaonline.domain.exception.DuplicateResourceException;
 import com.matriculaonline.domain.exception.ResourceNotFoundException;
 import com.matriculaonline.domain.model.Disciplina;
@@ -8,6 +9,7 @@ import com.matriculaonline.domain.model.Turma;
 import com.matriculaonline.dto.request.TurmaRequest;
 import com.matriculaonline.dto.response.TurmaResponse;
 import com.matriculaonline.repository.DisciplinaRepository;
+import com.matriculaonline.repository.MatriculaRepository;
 import com.matriculaonline.repository.TurmaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +37,9 @@ class TurmaServiceTest {
     @Mock
     private DisciplinaRepository disciplinaRepository;
 
+    @Mock
+    private MatriculaRepository matriculaRepository;
+
     @InjectMocks
     private TurmaService turmaService;
 
@@ -61,7 +66,7 @@ class TurmaServiceTest {
     }
 
     private TurmaRequest request() {
-        return new TurmaRequest("PROG-2026-1", disciplina.getUuid(), "Dr. João", "2026.1", 30);
+        return new TurmaRequest("PROG-2026-1", disciplina.getUuid(), "Dr. João", "2026.1", 30, StatusTurma.ABERTA);
     }
 
     @Test
@@ -128,13 +133,15 @@ class TurmaServiceTest {
         when(disciplinaRepository.findByUuid(disciplina.getUuid())).thenReturn(Optional.of(disciplina));
         when(turmaRepository.save(any(Turma.class))).thenReturn(turma);
 
-        TurmaRequest update = new TurmaRequest("PROG-2026-2", disciplina.getUuid(), "Dra. Ana", "2026.2", 40);
+        TurmaRequest update = new TurmaRequest(
+                "PROG-2026-2", disciplina.getUuid(), "Dra. Ana", "2026.2", 40, StatusTurma.FECHADA);
         TurmaResponse response = turmaService.atualizar(turma.getUuid(), update);
 
         assertThat(response).isNotNull();
         assertThat(turma.getCodigo()).isEqualTo("PROG-2026-2");
         assertThat(turma.getProfessor()).isEqualTo("Dra. Ana");
         assertThat(turma.getVagas()).isEqualTo(40);
+        assertThat(turma.getStatus()).isEqualTo(StatusTurma.FECHADA);
         verify(turmaRepository).save(turma);
     }
 
@@ -152,10 +159,23 @@ class TurmaServiceTest {
     @DisplayName("Deletar turma existente - remove entidade")
     void deveDeletarTurmaExistente() {
         when(turmaRepository.findByUuid(turma.getUuid())).thenReturn(Optional.of(turma));
+        when(matriculaRepository.existsByTurmaUuid(turma.getUuid())).thenReturn(false);
 
         turmaService.deletar(turma.getUuid());
 
         verify(turmaRepository).delete(turma);
+    }
+
+    @Test
+    @DisplayName("Deletar turma com matrículas vinculadas - erro")
+    void deveRejeitarExclusaoComMatriculasVinculadas() {
+        when(turmaRepository.findByUuid(turma.getUuid())).thenReturn(Optional.of(turma));
+        when(matriculaRepository.existsByTurmaUuid(turma.getUuid())).thenReturn(true);
+
+        assertThatThrownBy(() -> turmaService.deletar(turma.getUuid()))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("matrículas vinculadas");
+        verify(turmaRepository, never()).delete(any(Turma.class));
     }
 
     @Test
@@ -166,6 +186,6 @@ class TurmaServiceTest {
 
         turmaService.deletar(uuid);
 
-        verify(turmaRepository, never()).delete(any());
+        verify(turmaRepository, never()).delete(any(Turma.class));
     }
 }

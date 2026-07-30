@@ -1,5 +1,6 @@
 package com.matriculaonline.service;
 
+import com.matriculaonline.domain.exception.BusinessException;
 import com.matriculaonline.domain.exception.ResourceNotFoundException;
 import com.matriculaonline.domain.model.Curso;
 import com.matriculaonline.domain.model.Disciplina;
@@ -8,6 +9,7 @@ import com.matriculaonline.dto.response.DisciplinaResponse;
 import com.matriculaonline.dto.response.PageResponse;
 import com.matriculaonline.repository.CursoRepository;
 import com.matriculaonline.repository.DisciplinaRepository;
+import com.matriculaonline.repository.TurmaRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,10 +21,14 @@ public class DisciplinaService {
 
     private final DisciplinaRepository disciplinaRepository;
     private final CursoRepository cursoRepository;
+    private final TurmaRepository turmaRepository;
 
-    public DisciplinaService(DisciplinaRepository disciplinaRepository, CursoRepository cursoRepository) {
+    public DisciplinaService(DisciplinaRepository disciplinaRepository,
+                             CursoRepository cursoRepository,
+                             TurmaRepository turmaRepository) {
         this.disciplinaRepository = disciplinaRepository;
         this.cursoRepository = cursoRepository;
+        this.turmaRepository = turmaRepository;
     }
 
     @Transactional
@@ -70,6 +76,11 @@ public class DisciplinaService {
      */
     @Transactional
     public void deletar(UUID uuid) {
-        disciplinaRepository.findByUuid(uuid).ifPresent(disciplinaRepository::delete);
+        disciplinaRepository.findByUuid(uuid).ifPresent(disciplina -> {
+            if (turmaRepository.existsByDisciplinaUuid(uuid)) {
+                throw new BusinessException("Disciplina possui turmas vinculadas.");
+            }
+            disciplinaRepository.delete(disciplina);
+        });
     }
 }

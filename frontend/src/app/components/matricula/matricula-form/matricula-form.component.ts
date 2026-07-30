@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -10,11 +10,12 @@ import { handleApiError } from '../../../services/api-error-handler';
 import { MatriculaRequest } from '../../../models/matricula.model';
 import { Aluno } from '../../../models/aluno.model';
 import { Turma } from '../../../models/turma.model';
+import { SearchableSelectComponent } from '../../../shared/searchable-select/searchable-select.component';
 
 @Component({
   selector: 'app-matricula-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, SearchableSelectComponent],
   template: `
     <div class="page-header">
       <h2>Nova Matrícula</h2>
@@ -24,27 +25,26 @@ import { Turma } from '../../../models/turma.model';
       <form (ngSubmit)="salvar()" #form="ngForm">
         <div class="form-group">
           <label for="alunoUuid">Aluno</label>
-          <select id="alunoUuid" [(ngModel)]="matricula.alunoUuid" name="alunoUuid" required>
-            <option value="">Selecione um aluno</option>
-            @for (a of alunos(); track a.uuid) {
-              <option [value]="a.uuid">{{ a.nome }} ({{ a.email }})</option>
-            }
-          </select>
+          <app-searchable-select
+            inputId="alunoUuid"
+            name="alunoUuid"
+            [(ngModel)]="matricula.alunoUuid"
+            [options]="alunoOptions()"
+            placeholder="Buscar aluno..."
+            required
+          />
         </div>
 
         <div class="form-group">
           <label for="turmaUuid">Turma</label>
-          <select id="turmaUuid" [(ngModel)]="matricula.turmaUuid" name="turmaUuid" required>
-            <option value="">Selecione uma turma</option>
-            @for (t of turmas(); track t.uuid) {
-              <option [value]="t.uuid" [disabled]="t.status !== 'ABERTA' || t.vagasOcupadas >= t.vagas">
-                {{ t.codigo }} - {{ t.disciplinaNome }} | {{ t.professor }} | {{ t.semestre }}
-                ({{ t.vagasOcupadas }}/{{ t.vagas }} vagas)
-                {{ t.status !== 'ABERTA' ? ' [FECHADA]' : '' }}
-                {{ t.vagasOcupadas >= t.vagas ? ' [LOTADA]' : '' }}
-              </option>
-            }
-          </select>
+          <app-searchable-select
+            inputId="turmaUuid"
+            name="turmaUuid"
+            [(ngModel)]="matricula.turmaUuid"
+            [options]="turmaOptions()"
+            placeholder="Buscar turma..."
+            required
+          />
         </div>
 
         <div class="form-actions">
@@ -59,6 +59,24 @@ export class MatriculaFormComponent implements OnInit {
   matricula: MatriculaRequest = { alunoUuid: '', turmaUuid: '' };
   alunos = signal<Aluno[]>([]);
   turmas = signal<Turma[]>([]);
+
+  alunoOptions = computed(() =>
+    this.alunos().map(a => ({ value: a.uuid, label: `${a.nome} (${a.email})` }))
+  );
+  turmaOptions = computed(() =>
+    this.turmas().map(t => {
+      const indisponivel = t.status !== 'ABERTA' || t.vagasOcupadas >= t.vagas;
+      const sufixo = [
+        t.status !== 'ABERTA' ? '[FECHADA]' : '',
+        t.vagasOcupadas >= t.vagas ? '[LOTADA]' : ''
+      ].filter(Boolean).join(' ');
+      return {
+        value: t.uuid,
+        label: `${t.codigo} - ${t.disciplinaNome} | ${t.professor} | ${t.semestre} (${t.vagasOcupadas}/${t.vagas} vagas)${sufixo ? ' ' + sufixo : ''}`,
+        disabled: indisponivel
+      };
+    })
+  );
 
   constructor(
     private matriculaService: MatriculaService,

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
@@ -8,11 +8,12 @@ import { NotificationService } from '../../../services/notification.service';
 import { handleApiError } from '../../../services/api-error-handler';
 import { TurmaRequest } from '../../../models/turma.model';
 import { Disciplina } from '../../../models/disciplina.model';
+import { SearchableSelectComponent } from '../../../shared/searchable-select/searchable-select.component';
 
 @Component({
   selector: 'app-turma-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, SearchableSelectComponent],
   template: `
     <div class="page-header">
       <h2>{{ isEditing ? 'Editar Turma' : 'Nova Turma' }}</h2>
@@ -27,12 +28,14 @@ import { Disciplina } from '../../../models/disciplina.model';
           </div>
           <div class="form-group">
             <label for="disciplinaUuid">Disciplina</label>
-            <select id="disciplinaUuid" [(ngModel)]="turma.disciplinaUuid" name="disciplinaUuid" required>
-              <option value="">Selecione uma disciplina</option>
-              @for (d of disciplinas(); track d.uuid) {
-                <option [value]="d.uuid">{{ d.nome }} ({{ d.cursoNome }})</option>
-              }
-            </select>
+            <app-searchable-select
+              inputId="disciplinaUuid"
+              name="disciplinaUuid"
+              [(ngModel)]="turma.disciplinaUuid"
+              [options]="disciplinaOptions()"
+              placeholder="Buscar disciplina..."
+              required
+            />
           </div>
         </div>
 
@@ -47,9 +50,18 @@ import { Disciplina } from '../../../models/disciplina.model';
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="vagas">Número de Vagas</label>
-          <input id="vagas" type="number" [(ngModel)]="turma.vagas" name="vagas" required min="1">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="vagas">Número de Vagas</label>
+            <input id="vagas" type="number" [(ngModel)]="turma.vagas" name="vagas" required min="1">
+          </div>
+          <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" [(ngModel)]="turma.status" name="status" required>
+              <option value="ABERTA">Aberta</option>
+              <option value="FECHADA">Fechada</option>
+            </select>
+          </div>
         </div>
 
         <div class="form-actions">
@@ -61,10 +73,21 @@ import { Disciplina } from '../../../models/disciplina.model';
   `
 })
 export class TurmaFormComponent implements OnInit {
-  turma: TurmaRequest = { codigo: '', disciplinaUuid: '', professor: '', semestre: '', vagas: 1 };
+  turma: TurmaRequest = {
+    codigo: '',
+    disciplinaUuid: '',
+    professor: '',
+    semestre: '',
+    vagas: 1,
+    status: 'ABERTA'
+  };
   disciplinas = signal<Disciplina[]>([]);
   isEditing = false;
   private uuid: string | null = null;
+
+  disciplinaOptions = computed(() =>
+    this.disciplinas().map(d => ({ value: d.uuid, label: `${d.nome} (${d.cursoNome})` }))
+  );
 
   constructor(
     private turmaService: TurmaService,
@@ -87,8 +110,12 @@ export class TurmaFormComponent implements OnInit {
       this.turmaService.buscarPorUuid(this.uuid).subscribe({
         next: (data) => {
           this.turma = {
-            codigo: data.codigo, disciplinaUuid: data.disciplinaUuid,
-            professor: data.professor, semestre: data.semestre, vagas: data.vagas
+            codigo: data.codigo,
+            disciplinaUuid: data.disciplinaUuid,
+            professor: data.professor,
+            semestre: data.semestre,
+            vagas: data.vagas,
+            status: data.status
           };
           this.cdr.markForCheck();
         },

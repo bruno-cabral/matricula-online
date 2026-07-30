@@ -69,7 +69,7 @@ class TurmaIntegrationTest {
     void crudCompletoTurma() {
         // CREATE
         TurmaRequest createRequest = new TurmaRequest(
-                "ALG-2026-1", disciplina.getUuid(), "Prof. Ana", "2026.1", 30);
+                "ALG-2026-1", disciplina.getUuid(), "Prof. Ana", "2026.1", 30, StatusTurma.ABERTA);
 
         ResponseEntity<TurmaResponse> createResponse = restTemplate.postForEntity(
                 "/api/turmas", createRequest, TurmaResponse.class);
@@ -92,7 +92,7 @@ class TurmaIntegrationTest {
 
         // UPDATE
         TurmaRequest updateRequest = new TurmaRequest(
-                "ALG-2026-2", disciplina.getUuid(), "Prof. Carlos", "2026.2", 40);
+                "ALG-2026-2", disciplina.getUuid(), "Prof. Carlos", "2026.2", 40, StatusTurma.FECHADA);
 
         ResponseEntity<TurmaResponse> updateResponse = restTemplate.exchange(
                 "/api/turmas/{uuid}", HttpMethod.PUT,
@@ -101,6 +101,7 @@ class TurmaIntegrationTest {
         assertThat(updateResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(updateResponse.getBody().codigo()).isEqualTo("ALG-2026-2");
         assertThat(updateResponse.getBody().vagas()).isEqualTo(40);
+        assertThat(updateResponse.getBody().status()).isEqualTo(StatusTurma.FECHADA);
 
         // READ list (paginado)
         ResponseEntity<String> listResponse = restTemplate.getForEntity(
@@ -132,7 +133,7 @@ class TurmaIntegrationTest {
     @DisplayName("Criar turma com código duplicado retorna HTTP 409")
     void criarComCodigoDuplicadoRetornaConflito() {
         TurmaRequest request = new TurmaRequest(
-                "ALG-2026-1", disciplina.getUuid(), "Prof. Ana", "2026.1", 30);
+                "ALG-2026-1", disciplina.getUuid(), "Prof. Ana", "2026.1", 30, StatusTurma.ABERTA);
 
         restTemplate.postForEntity("/api/turmas", request, TurmaResponse.class);
 
@@ -146,7 +147,7 @@ class TurmaIntegrationTest {
     @DisplayName("Criar turma com disciplina inexistente retorna HTTP 404")
     void criarComDisciplinaInexistenteRetornaNotFound() {
         TurmaRequest request = new TurmaRequest(
-                "ALG-2026-9", UUID.randomUUID(), "Prof. Ana", "2026.1", 30);
+                "ALG-2026-9", UUID.randomUUID(), "Prof. Ana", "2026.1", 30, StatusTurma.ABERTA);
 
         ResponseEntity<String> response = restTemplate.postForEntity(
                 "/api/turmas", request, String.class);
@@ -157,7 +158,7 @@ class TurmaIntegrationTest {
     @Test
     @DisplayName("Validação de campos obrigatórios retorna HTTP 400")
     void validacaoCamposObrigatorios() {
-        TurmaRequest invalidRequest = new TurmaRequest("", null, "", "", null);
+        TurmaRequest invalidRequest = new TurmaRequest("", null, "", "", null, null);
 
         ResponseEntity<String> response = restTemplate.postForEntity(
                 "/api/turmas", invalidRequest, String.class);

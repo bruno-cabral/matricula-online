@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -12,13 +12,14 @@ import { Aluno } from '../../../models/aluno.model';
 import { Turma } from '../../../models/turma.model';
 import { PageResponse } from '../../../models/page.model';
 import { SortState, sortIndicator, toggleSort, toSortParam } from '../../../shared/sort.util';
+import { SearchableSelectComponent } from '../../../shared/searchable-select/searchable-select.component';
 
 type ConsultaTipo = 'todas' | 'aluno' | 'turma';
 
 @Component({
   selector: 'app-matricula-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, SearchableSelectComponent],
   template: `
     <div class="page-header">
       <h2>Matrículas</h2>
@@ -39,24 +40,26 @@ type ConsultaTipo = 'todas' | 'aluno' | 'turma';
         @if (consultaTipo() === 'aluno') {
           <div class="filter-group">
             <label for="alunoUuid">Aluno:</label>
-            <select id="alunoUuid" [ngModel]="alunoUuid()" (ngModelChange)="alterarAluno($event)">
-              <option value="">Selecione um aluno</option>
-              @for (a of alunos(); track a.uuid) {
-                <option [value]="a.uuid">{{ a.nome }} ({{ a.email }})</option>
-              }
-            </select>
+            <app-searchable-select
+              inputId="alunoUuid"
+              [options]="alunoOptions()"
+              [ngModel]="alunoUuid()"
+              (ngModelChange)="alterarAluno($event)"
+              placeholder="Buscar aluno..."
+            />
           </div>
         }
 
         @if (consultaTipo() === 'turma') {
           <div class="filter-group">
             <label for="turmaUuid">Turma:</label>
-            <select id="turmaUuid" [ngModel]="turmaUuid()" (ngModelChange)="alterarTurma($event)">
-              <option value="">Selecione uma turma</option>
-              @for (t of turmas(); track t.uuid) {
-                <option [value]="t.uuid">{{ t.codigo }} — {{ t.disciplinaNome }}</option>
-              }
-            </select>
+            <app-searchable-select
+              inputId="turmaUuid"
+              [options]="turmaOptions()"
+              [ngModel]="turmaUuid()"
+              (ngModelChange)="alterarTurma($event)"
+              placeholder="Buscar turma..."
+            />
           </div>
         }
 
@@ -148,6 +151,13 @@ export class MatriculaListComponent implements OnInit {
   alunos = signal<Aluno[]>([]);
   turmas = signal<Turma[]>([]);
   sort = signal<SortState>({ field: 'dataMatricula', direction: 'desc' });
+
+  alunoOptions = computed(() =>
+    this.alunos().map(a => ({ value: a.uuid, label: `${a.nome} (${a.email})` }))
+  );
+  turmaOptions = computed(() =>
+    this.turmas().map(t => ({ value: t.uuid, label: `${t.codigo} — ${t.disciplinaNome}` }))
+  );
 
   constructor(
     private matriculaService: MatriculaService,

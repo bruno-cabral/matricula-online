@@ -1,5 +1,6 @@
 package com.matriculaonline.dto.request;
 
+import com.matriculaonline.domain.model.StatusTurma;
 import jakarta.validation.constraints.*;
 import java.util.UUID;
 
@@ -21,5 +22,8 @@ public record TurmaRequest(
 
         @NotNull(message = "Número de vagas é obrigatório")
         @Min(value = 1, message = "Número de vagas deve ser maior que zero")
-        Integer vagas
+        Integer vagas,
+
+        @NotNull(message = "Status é obrigatório")
+        StatusTurma status
 ) {}

@@ -1,10 +1,12 @@
 package com.matriculaonline.service;
 
+import com.matriculaonline.domain.exception.BusinessException;
 import com.matriculaonline.domain.exception.ResourceNotFoundException;
 import com.matriculaonline.domain.model.Curso;
 import com.matriculaonline.dto.request.CursoRequest;
 import com.matriculaonline.dto.response.CursoResponse;
 import com.matriculaonline.repository.CursoRepository;
+import com.matriculaonline.repository.DisciplinaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,6 +28,9 @@ class CursoServiceTest {
 
     @Mock
     private CursoRepository cursoRepository;
+
+    @Mock
+    private DisciplinaRepository disciplinaRepository;
 
     @InjectMocks
     private CursoService cursoService;
@@ -107,10 +112,23 @@ class CursoServiceTest {
     @DisplayName("Deletar curso existente - remove entidade")
     void deveDeletarCursoExistente() {
         when(cursoRepository.findByUuid(curso.getUuid())).thenReturn(Optional.of(curso));
+        when(disciplinaRepository.existsByCursoUuid(curso.getUuid())).thenReturn(false);
 
         cursoService.deletar(curso.getUuid());
 
         verify(cursoRepository).delete(curso);
+    }
+
+    @Test
+    @DisplayName("Deletar curso com disciplinas vinculadas - erro")
+    void deveRejeitarExclusaoComDisciplinasVinculadas() {
+        when(cursoRepository.findByUuid(curso.getUuid())).thenReturn(Optional.of(curso));
+        when(disciplinaRepository.existsByCursoUuid(curso.getUuid())).thenReturn(true);
+
+        assertThatThrownBy(() -> cursoService.deletar(curso.getUuid()))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("disciplinas vinculadas");
+        verify(cursoRepository, never()).delete(any());
     }
 
     @Test

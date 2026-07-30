@@ -1,3 +1,5 @@
+export type StatusTurma = 'ABERTA' | 'FECHADA';
+
 export interface Turma {
   uuid: string;
   codigo: string;
@@ -7,7 +9,7 @@ export interface Turma {
   semestre: string;
   vagas: number;
   vagasOcupadas: number;
-  status: 'ABERTA' | 'FECHADA';
+  status: StatusTurma;
   createdAt: string;
   updatedAt: string;
 }
@@ -18,4 +20,5 @@ export interface TurmaRequest {
   professor: string;
   semestre: string;
   vagas: number;
+  status: StatusTurma;
 }

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
@@ -8,11 +8,12 @@ import { NotificationService } from '../../../services/notification.service';
 import { handleApiError } from '../../../services/api-error-handler';
 import { DisciplinaRequest } from '../../../models/disciplina.model';
 import { Curso } from '../../../models/curso.model';
+import { SearchableSelectComponent } from '../../../shared/searchable-select/searchable-select.component';
 
 @Component({
   selector: 'app-disciplina-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, SearchableSelectComponent],
   template: `
     <div class="page-header">
       <h2>{{ isEditing ? 'Editar Disciplina' : 'Nova Disciplina' }}</h2>
@@ -37,12 +38,14 @@ import { Curso } from '../../../models/curso.model';
           </div>
           <div class="form-group">
             <label for="cursoUuid">Curso</label>
-            <select id="cursoUuid" [(ngModel)]="disciplina.cursoUuid" name="cursoUuid" required>
-              <option value="">Selecione um curso</option>
-              @for (c of cursos(); track c.uuid) {
-                <option [value]="c.uuid">{{ c.nome }}</option>
-              }
-            </select>
+            <app-searchable-select
+              inputId="cursoUuid"
+              name="cursoUuid"
+              [(ngModel)]="disciplina.cursoUuid"
+              [options]="cursoOptions()"
+              placeholder="Buscar curso..."
+              required
+            />
           </div>
         </div>
 
@@ -59,6 +62,10 @@ export class DisciplinaFormComponent implements OnInit {
   cursos = signal<Curso[]>([]);
   isEditing = false;
   private uuid: string | null = null;
+
+  cursoOptions = computed(() =>
+    this.cursos().map(c => ({ value: c.uuid, label: c.nome }))
+  );
 
   constructor(
     private disciplinaService: DisciplinaService,

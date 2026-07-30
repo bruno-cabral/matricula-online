@@ -1,11 +1,13 @@
 package com.matriculaonline.service;
 
+import com.matriculaonline.domain.exception.BusinessException;
 import com.matriculaonline.domain.exception.DuplicateResourceException;
 import com.matriculaonline.domain.exception.ResourceNotFoundException;
 import com.matriculaonline.domain.model.Aluno;
 import com.matriculaonline.dto.request.AlunoRequest;
 import com.matriculaonline.dto.response.AlunoResponse;
 import com.matriculaonline.repository.AlunoRepository;
+import com.matriculaonline.repository.MatriculaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,9 @@ class AlunoServiceTest {
 
     @Mock
     private AlunoRepository alunoRepository;
+
+    @Mock
+    private MatriculaRepository matriculaRepository;
 
     @InjectMocks
     private AlunoService alunoService;
@@ -134,10 +139,23 @@ class AlunoServiceTest {
     @DisplayName("Deletar aluno existente - remove entidade")
     void deveDeletarAlunoExistente() {
         when(alunoRepository.findByUuid(aluno.getUuid())).thenReturn(Optional.of(aluno));
+        when(matriculaRepository.existsByAlunoUuid(aluno.getUuid())).thenReturn(false);
 
         alunoService.deletar(aluno.getUuid());
 
         verify(alunoRepository).delete(aluno);
+    }
+
+    @Test
+    @DisplayName("Deletar aluno com matrículas vinculadas - erro")
+    void deveRejeitarExclusaoComMatriculasVinculadas() {
+        when(alunoRepository.findByUuid(aluno.getUuid())).thenReturn(Optional.of(aluno));
+        when(matriculaRepository.existsByAlunoUuid(aluno.getUuid())).thenReturn(true);
+
+        assertThatThrownBy(() -> alunoService.deletar(aluno.getUuid()))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("matrículas vinculadas");
+        verify(alunoRepository, never()).delete(any());
     }
 
     @Test

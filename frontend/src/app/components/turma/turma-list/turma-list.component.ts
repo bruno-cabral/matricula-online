@@ -1,5 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TurmaService } from '../../../services/turma.service';
 import { NotificationService } from '../../../services/notification.service';
@@ -11,7 +12,7 @@ import { SortState, sortIndicator, toggleSort, toSortParam } from '../../../shar
 @Component({
   selector: 'app-turma-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div class="page-header">
       <h2>Turmas</h2>
@@ -19,6 +20,29 @@ import { SortState, sortIndicator, toggleSort, toSortParam } from '../../../shar
     </div>
 
     <div class="card">
+      <div class="filter-bar filter-bar-wrap">
+        <div class="filter-group">
+          <label for="statusFilter">Status:</label>
+          <select id="statusFilter" [ngModel]="statusFilter()" (ngModelChange)="filtrarStatus($event)">
+            <option value="">Todos</option>
+            <option value="ABERTA">Aberta</option>
+            <option value="FECHADA">Fechada</option>
+          </select>
+        </div>
+
+        <div class="filter-group filter-checkbox">
+          <label class="checkbox-label" for="lotadaFilter">
+            <input
+              id="lotadaFilter"
+              type="checkbox"
+              [ngModel]="apenasLotadas()"
+              (ngModelChange)="filtrarLotadas($event)"
+            />
+            Apenas turmas lotadas
+          </label>
+        </div>
+      </div>
+
       @if (page(); as p) {
         @if (p.content.length > 0) {
           <table>
@@ -70,11 +94,11 @@ import { SortState, sortIndicator, toggleSort, toSortParam } from '../../../shar
 
           <div class="pagination">
             <button class="btn btn-outline btn-sm" [disabled]="currentPage() === 0" (click)="irParaPagina(currentPage() - 1)">Anterior</button>
-            <span>Página {{ currentPage() + 1 }} de {{ p.totalPages }}</span>
+            <span>Página {{ currentPage() + 1 }} de {{ p.totalPages }} ({{ p.totalElements }} registros)</span>
             <button class="btn btn-outline btn-sm" [disabled]="currentPage() >= p.totalPages - 1" (click)="irParaPagina(currentPage() + 1)">Próxima</button>
           </div>
         } @else {
-          <div class="empty-state"><p>Nenhuma turma cadastrada.</p></div>
+          <div class="empty-state"><p>Nenhuma turma encontrada para estes filtros.</p></div>
         }
       } @else {
         <div class="empty-state"><p>Carregando...</p></div>
@@ -85,6 +109,8 @@ import { SortState, sortIndicator, toggleSort, toSortParam } from '../../../shar
 export class TurmaListComponent implements OnInit {
   page = signal<PageResponse<Turma> | null>(null);
   currentPage = signal(0);
+  statusFilter = signal('');
+  apenasLotadas = signal(false);
   sort = signal<SortState>({ field: 'codigo', direction: 'asc' });
 
   constructor(private turmaService: TurmaService, private notification: NotificationService) {}
@@ -92,10 +118,30 @@ export class TurmaListComponent implements OnInit {
   ngOnInit(): void { this.carregar(); }
 
   carregar(): void {
-    this.turmaService.listar(this.currentPage(), 10, toSortParam(this.sort())).subscribe({
+    this.turmaService.listar(
+      this.currentPage(),
+      10,
+      toSortParam(this.sort()),
+      {
+        status: this.statusFilter() || undefined,
+        lotada: this.apenasLotadas() || undefined
+      }
+    ).subscribe({
       next: (data) => this.page.set(data),
       error: (err) => handleApiError(err, this.notification)
     });
+  }
+
+  filtrarStatus(status: string): void {
+    this.statusFilter.set(status);
+    this.currentPage.set(0);
+    this.carregar();
+  }
+
+  filtrarLotadas(lotada: boolean): void {
+    this.apenasLotadas.set(lotada);
+    this.currentPage.set(0);
+    this.carregar();
   }
 
   ordenar(field: string): void {

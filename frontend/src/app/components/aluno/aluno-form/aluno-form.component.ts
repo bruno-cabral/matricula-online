@@ -7,11 +7,22 @@ import { NotificationService } from '../../../services/notification.service';
 import { handleApiError } from '../../../services/api-error-handler';
 import { AlunoRequest } from '../../../models/aluno.model';
 import { CpfValidatorDirective } from '../../../directives/cpf-validator.directive';
+import { CpfMaskDirective } from '../../../directives/cpf-mask.directive';
+import { DateInputComponent } from '../../../shared/date-input/date-input.component';
+import { apenasDigitosCpf, formatCpf } from '../../../shared/cpf.util';
+import { normalizeToIsoDate } from '../../../shared/date.util';
 
 @Component({
   selector: 'app-aluno-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CpfValidatorDirective],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    CpfValidatorDirective,
+    CpfMaskDirective,
+    DateInputComponent
+  ],
   template: `
     <div class="page-header">
       <h2>{{ isEditing ? 'Editar Aluno' : 'Novo Aluno' }}</h2>
@@ -41,8 +52,8 @@ import { CpfValidatorDirective } from '../../../directives/cpf-validator.directi
         <div class="form-row">
           <div class="form-group">
             <label for="cpf">CPF</label>
-            <input id="cpf" type="text" [(ngModel)]="aluno.cpf" name="cpf" required cpfValidator
-                   maxlength="14"
+            <input id="cpf" type="text" [(ngModel)]="aluno.cpf" name="cpf" required cpfValidator cpfMask
+                   maxlength="14" inputmode="numeric" placeholder="000.000.000-00"
                    [class.invalid]="cpfField.invalid && cpfField.touched" #cpfField="ngModel">
             @if (cpfField.errors?.['required'] && cpfField.touched) {
               <span class="error-msg">CPF é obrigatório</span>
@@ -52,8 +63,14 @@ import { CpfValidatorDirective } from '../../../directives/cpf-validator.directi
           </div>
           <div class="form-group">
             <label for="dataNascimento">Data de Nascimento</label>
-            <input id="dataNascimento" type="date" [(ngModel)]="aluno.dataNascimento" name="dataNascimento" required
-                   [class.invalid]="dataField.invalid && dataField.touched" #dataField="ngModel">
+            <app-date-input
+              inputId="dataNascimento"
+              name="dataNascimento"
+              [(ngModel)]="aluno.dataNascimento"
+              required
+              [class.invalid]="dataField.invalid && dataField.touched"
+              #dataField="ngModel"
+            />
             @if (dataField.invalid && dataField.touched) {
               <span class="error-msg">Data de nascimento é obrigatória</span>
             }
@@ -90,8 +107,8 @@ export class AlunoFormComponent implements OnInit {
           this.aluno = {
             nome: data.nome,
             email: data.email,
-            cpf: data.cpf,
-            dataNascimento: data.dataNascimento
+            cpf: formatCpf(data.cpf),
+            dataNascimento: normalizeToIsoDate(data.dataNascimento)
           };
           this.cdr.markForCheck();
         },
@@ -101,9 +118,14 @@ export class AlunoFormComponent implements OnInit {
   }
 
   salvar(): void {
+    const payload: AlunoRequest = {
+      ...this.aluno,
+      cpf: apenasDigitosCpf(this.aluno.cpf)
+    };
+
     const obs = this.isEditing && this.uuid
-      ? this.alunoService.atualizar(this.uuid, this.aluno)
-      : this.alunoService.criar(this.aluno);
+      ? this.alunoService.atualizar(this.uuid, payload)
+      : this.alunoService.criar(payload);
 
     obs.subscribe({
       next: () => {

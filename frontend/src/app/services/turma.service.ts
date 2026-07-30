@@ -4,17 +4,35 @@ import { Observable } from 'rxjs';
 import { Turma, TurmaRequest } from '../models/turma.model';
 import { PageResponse } from '../models/page.model';
 
+export interface TurmaListFilters {
+  status?: string;
+  lotada?: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class TurmaService {
   private readonly apiUrl = '/api/turmas';
 
   constructor(private http: HttpClient) {}
 
-  listar(page = 0, size = 10, sort = 'codigo,asc'): Observable<PageResponse<Turma>> {
-    const params = new HttpParams()
+  listar(
+    page = 0,
+    size = 10,
+    sort = 'codigo,asc',
+    filters: TurmaListFilters = {}
+  ): Observable<PageResponse<Turma>> {
+    let params = new HttpParams()
       .set('page', page)
       .set('size', size)
       .set('sort', sort);
+
+    if (filters.status) {
+      params = params.set('status', filters.status);
+    }
+    if (filters.lotada) {
+      params = params.set('lotada', 'true');
+    }
+
     return this.http.get<PageResponse<Turma>>(this.apiUrl, { params });
   }
 

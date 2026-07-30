@@ -1,9 +1,28 @@
+export function apenasDigitosCpf(cpf: string | null | undefined): string {
+  return (cpf ?? '').replace(/\D/g, '').slice(0, 11);
+}
+
+/** Formata CPF como 000.000.000-00 (aceita valor parcial enquanto digita). */
+export function formatCpf(cpf: string | null | undefined): string {
+  const digits = apenasDigitosCpf(cpf);
+  if (digits.length <= 3) {
+    return digits;
+  }
+  if (digits.length <= 6) {
+    return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+  }
+  if (digits.length <= 9) {
+    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+  }
+  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+}
+
 export function isCpfValido(cpf: string | null | undefined): boolean {
   if (!cpf) {
     return false;
   }
 
-  const digits = cpf.replace(/\D/g, '');
+  const digits = apenasDigitosCpf(cpf);
   if (digits.length !== 11 || /^(\d)\1{10}$/.test(digits)) {
     return false;
   }

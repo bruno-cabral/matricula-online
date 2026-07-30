@@ -1,11 +1,13 @@
 package com.matriculaonline.service;
 
+import com.matriculaonline.domain.exception.BusinessException;
 import com.matriculaonline.domain.exception.ResourceNotFoundException;
 import com.matriculaonline.domain.model.Curso;
 import com.matriculaonline.dto.request.CursoRequest;
 import com.matriculaonline.dto.response.CursoResponse;
 import com.matriculaonline.dto.response.PageResponse;
 import com.matriculaonline.repository.CursoRepository;
+import com.matriculaonline.repository.DisciplinaRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,9 +18,11 @@ import java.util.UUID;
 public class CursoService {
 
     private final CursoRepository cursoRepository;
+    private final DisciplinaRepository disciplinaRepository;
 
-    public CursoService(CursoRepository cursoRepository) {
+    public CursoService(CursoRepository cursoRepository, DisciplinaRepository disciplinaRepository) {
         this.cursoRepository = cursoRepository;
+        this.disciplinaRepository = disciplinaRepository;
     }
 
     @Transactional
@@ -57,6 +61,11 @@ public class CursoService {
      */
     @Transactional
     public void deletar(UUID uuid) {
-        cursoRepository.findByUuid(uuid).ifPresent(cursoRepository::delete);
+        cursoRepository.findByUuid(uuid).ifPresent(curso -> {
+            if (disciplinaRepository.existsByCursoUuid(uuid)) {
+                throw new BusinessException("Curso possui disciplinas vinculadas.");
+            }
+            cursoRepository.delete(curso);
+        });
     }
 }

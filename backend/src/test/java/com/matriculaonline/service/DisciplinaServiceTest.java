@@ -1,5 +1,6 @@
 package com.matriculaonline.service;
 
+import com.matriculaonline.domain.exception.BusinessException;
 import com.matriculaonline.domain.exception.ResourceNotFoundException;
 import com.matriculaonline.domain.model.Curso;
 import com.matriculaonline.domain.model.Disciplina;
@@ -7,6 +8,7 @@ import com.matriculaonline.dto.request.DisciplinaRequest;
 import com.matriculaonline.dto.response.DisciplinaResponse;
 import com.matriculaonline.repository.CursoRepository;
 import com.matriculaonline.repository.DisciplinaRepository;
+import com.matriculaonline.repository.TurmaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,9 @@ class DisciplinaServiceTest {
 
     @Mock
     private CursoRepository cursoRepository;
+
+    @Mock
+    private TurmaRepository turmaRepository;
 
     @InjectMocks
     private DisciplinaService disciplinaService;
@@ -132,10 +137,23 @@ class DisciplinaServiceTest {
     @DisplayName("Deletar disciplina existente - remove entidade")
     void deveDeletarDisciplinaExistente() {
         when(disciplinaRepository.findByUuid(disciplina.getUuid())).thenReturn(Optional.of(disciplina));
+        when(turmaRepository.existsByDisciplinaUuid(disciplina.getUuid())).thenReturn(false);
 
         disciplinaService.deletar(disciplina.getUuid());
 
         verify(disciplinaRepository).delete(disciplina);
+    }
+
+    @Test
+    @DisplayName("Deletar disciplina com turmas vinculadas - erro")
+    void deveRejeitarExclusaoComTurmasVinculadas() {
+        when(disciplinaRepository.findByUuid(disciplina.getUuid())).thenReturn(Optional.of(disciplina));
+        when(turmaRepository.existsByDisciplinaUuid(disciplina.getUuid())).thenReturn(true);
+
+        assertThatThrownBy(() -> disciplinaService.deletar(disciplina.getUuid()))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("turmas vinculadas");
+        verify(disciplinaRepository, never()).delete(any());
     }
 
     @Test

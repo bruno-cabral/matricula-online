@@ -1,5 +1,6 @@
 package com.matriculaonline.controller;
 
+import com.matriculaonline.domain.model.StatusTurma;
 import com.matriculaonline.dto.request.TurmaRequest;
 import com.matriculaonline.dto.response.PageResponse;
 import com.matriculaonline.dto.response.TurmaResponse;
@@ -30,8 +31,10 @@ public class TurmaController {
 
     @GetMapping
     public ResponseEntity<PageResponse<TurmaResponse>> listar(
+            @RequestParam(required = false) StatusTurma status,
+            @RequestParam(required = false) Boolean lotada,
             @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(turmaService.listar(pageable));
+        return ResponseEntity.ok(turmaService.listar(status, lotada, pageable));
     }
 
     @GetMapping("/{uuid}")

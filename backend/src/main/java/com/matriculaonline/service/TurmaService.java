@@ -1,14 +1,18 @@
 package com.matriculaonline.service;
 
+import com.matriculaonline.domain.exception.BusinessException;
 import com.matriculaonline.domain.exception.DuplicateResourceException;
 import com.matriculaonline.domain.exception.ResourceNotFoundException;
 import com.matriculaonline.domain.model.Disciplina;
+import com.matriculaonline.domain.model.StatusTurma;
 import com.matriculaonline.domain.model.Turma;
 import com.matriculaonline.dto.request.TurmaRequest;
 import com.matriculaonline.dto.response.PageResponse;
 import com.matriculaonline.dto.response.TurmaResponse;
 import com.matriculaonline.repository.DisciplinaRepository;
+import com.matriculaonline.repository.MatriculaRepository;
 import com.matriculaonline.repository.TurmaRepository;
+import com.matriculaonline.repository.TurmaSpecifications;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +24,14 @@ public class TurmaService {
 
     private final TurmaRepository turmaRepository;
     private final DisciplinaRepository disciplinaRepository;
+    private final MatriculaRepository matriculaRepository;
 
-    public TurmaService(TurmaRepository turmaRepository, DisciplinaRepository disciplinaRepository) {
+    public TurmaService(TurmaRepository turmaRepository,
+                        DisciplinaRepository disciplinaRepository,
+                        MatriculaRepository matriculaRepository) {
         this.turmaRepository = turmaRepository;
         this.disciplinaRepository = disciplinaRepository;
+        this.matriculaRepository = matriculaRepository;
     }
 
     @Transactional
@@ -41,12 +49,16 @@ public class TurmaService {
         turma.setProfessor(request.professor());
         turma.setSemestre(request.semestre());
         turma.setVagas(request.vagas());
+        turma.setStatus(request.status());
         return TurmaResponse.fromEntity(turmaRepository.save(turma));
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<TurmaResponse> listar(Pageable pageable) {
-        return PageResponse.from(turmaRepository.findAll(pageable), TurmaResponse::fromEntity);
+    public PageResponse<TurmaResponse> listar(StatusTurma status, Boolean lotada, Pageable pageable) {
+        return PageResponse.from(
+                turmaRepository.findAll(TurmaSpecifications.comFiltros(status, lotada), pageable),
+                TurmaResponse::fromEntity
+        );
     }
 
     @Transactional(readOnly = true)
@@ -69,6 +81,7 @@ public class TurmaService {
         turma.setProfessor(request.professor());
         turma.setSemestre(request.semestre());
         turma.setVagas(request.vagas());
+        turma.setStatus(request.status());
         return TurmaResponse.fromEntity(turmaRepository.save(turma));
     }
 
@@ -77,6 +90,11 @@ public class TurmaService {
      */
     @Transactional
     public void deletar(UUID uuid) {
-        turmaRepository.findByUuid(uuid).ifPresent(turmaRepository::delete);
+        turmaRepository.findByUuid(uuid).ifPresent(turma -> {
+            if (matriculaRepository.existsByTurmaUuid(uuid)) {
+                throw new BusinessException("Turma possui matrículas vinculadas.");
+            }
+            turmaRepository.delete(turma);
+        });
     }
 }

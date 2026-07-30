@@ -7,6 +7,8 @@ import { handleApiError } from '../../../services/api-error-handler';
 import { Aluno } from '../../../models/aluno.model';
 import { PageResponse } from '../../../models/page.model';
 import { SortState, sortIndicator, toggleSort, toSortParam } from '../../../shared/sort.util';
+import { formatCpf } from '../../../shared/cpf.util';
+import { formatDateBr } from '../../../shared/date.util';
 
 @Component({
   selector: 'app-aluno-list',
@@ -44,8 +46,8 @@ import { SortState, sortIndicator, toggleSort, toSortParam } from '../../../shar
                 <tr>
                   <td>{{ aluno.nome }}</td>
                   <td>{{ aluno.email }}</td>
-                  <td>{{ aluno.cpf }}</td>
-                  <td>{{ aluno.dataNascimento }}</td>
+                  <td>{{ formatCpf(aluno.cpf) }}</td>
+                  <td>{{ formatDateBr(aluno.dataNascimento) }}</td>
                   <td class="actions">
                     <a [routerLink]="['/matriculas']" [queryParams]="{ alunoUuid: aluno.uuid }" class="btn btn-outline btn-sm">Matrículas</a>
                     <a [routerLink]="['/alunos/editar', aluno.uuid]" class="btn btn-outline btn-sm">Editar</a>
@@ -78,6 +80,8 @@ export class AlunoListComponent implements OnInit {
   page = signal<PageResponse<Aluno> | null>(null);
   currentPage = signal(0);
   sort = signal<SortState>({ field: 'nome', direction: 'asc' });
+  readonly formatCpf = formatCpf;
+  readonly formatDateBr = formatDateBr;
 
   constructor(
     private alunoService: AlunoService,

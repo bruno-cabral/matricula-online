@@ -7,6 +7,7 @@ import com.matriculaonline.dto.response.ErrorResponse;
 import com.matriculaonline.dto.response.ValidationErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
+import java.util.Locale;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -66,11 +68,46 @@ public class GlobalExceptionHandler {
                         "A operação falhou devido a uma modificação concorrente. Tente novamente."));
     }
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex) {
+        String message = resolverMensagemIntegridade(ex);
+        log.warn("Violação de integridade: {}", message);
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.of(409, "Violação de integridade", message));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
         log.error("Erro interno não tratado", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ErrorResponse.of(500, "Erro interno do servidor",
                         "Ocorreu um erro inesperado. Tente novamente mais tarde."));
+    }
+
+    private String resolverMensagemIntegridade(DataIntegrityViolationException ex) {
+        String details = "";
+        if (ex.getMostSpecificCause() != null && ex.getMostSpecificCause().getMessage() != null) {
+            details = ex.getMostSpecificCause().getMessage().toLowerCase(Locale.ROOT);
+        } else if (ex.getMessage() != null) {
+            details = ex.getMessage().toLowerCase(Locale.ROOT);
+        }
+
+        if (details.contains("fk_disciplina_curso")) {
+            return "Curso possui disciplinas vinculadas.";
+        }
+        if (details.contains("fk_turma_disciplina")) {
+            return "Disciplina possui turmas vinculadas.";
+        }
+        if (details.contains("fk_matricula_aluno")) {
+            return "Aluno possui matrículas vinculadas.";
+        }
+        if (details.contains("fk_matricula_turma")) {
+            return "Turma possui matrículas vinculadas.";
+        }
+        if (details.contains("unique") || details.contains("duplicate")) {
+            return "Registro duplicado.";
+        }
+
+        return "Registro possui vínculos e não pode ser excluído.";
     }
 }
