@@ -335,6 +335,24 @@ td.actions .actions-empty {
   font-style: italic;
 }
 
+.searchable-select-status {
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-align: center;
+  cursor: default;
+}
+
+.searchable-select-more {
+  cursor: pointer;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.searchable-select-more:hover {
+  background: #e8f0fe;
+}
+
 .date-input {
   position: relative;
   width: 100%;

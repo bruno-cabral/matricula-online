@@ -50,7 +50,14 @@ docker compose down -v
 
 ### Dados iniciais
 
-Na primeira execução, o Liquibase cria o schema e carrega dados de exemplo (cursos, alunos, disciplinas, turmas e matrículas).
+Na primeira execução, o Liquibase cria o schema e carrega dados de exemplo em volume suficiente para explorar paginação de listagens e dropdowns (cerca de 15 cursos, 25 alunos, 17 disciplinas, 17 turmas e 24 matrículas).
+
+Se o banco já existir sem esses dados extras, recrie o volume:
+
+```bash
+docker compose down -v
+docker compose up --build -d
+```
 
 ### Credenciais do banco
 
@@ -100,10 +107,10 @@ Os testes de integração validam os fluxos completos via API REST para todas as
 | Entidade | Cenários | Classe |
 |----------|----------|--------|
 | Matrícula | 12 | `MatriculaServiceTest` |
-| Aluno | 9 | `AlunoServiceTest` |
-| Turma | 9 | `TurmaServiceTest` |
-| Disciplina | 8 | `DisciplinaServiceTest` |
-| Curso | 7 | `CursoServiceTest` |
+| Aluno | 10 | `AlunoServiceTest` |
+| Turma | 10 | `TurmaServiceTest` |
+| Disciplina | 9 | `DisciplinaServiceTest` |
+| Curso | 8 | `CursoServiceTest` |
 | CPF (validação) | 17 | `CpfValidatorTest` |
 
 ### Testes de integração (API end-to-end)
@@ -151,15 +158,28 @@ Os testes de integração validam os fluxos completos via API REST para todas as
 | 6 | CRUD completo via API | Disciplina | Integração |
 | 7 | Criar com curso inexistente (HTTP 404) | Disciplina | Integração |
 | 8 | Validação de campos obrigatórios | Disciplina | Integração |
-| 9 | CRUD completo via API | Turma | Integração |
+| 9 | CRUD completo via API (inclui alteração de status) | Turma | Integração |
 | 10 | Código duplicado (HTTP 409) | Turma | Integração |
 | 11 | Criar com disciplina inexistente (HTTP 404) | Turma | Integração |
 | 12 | Validação de campos obrigatórios | Turma | Integração |
+| 13 | Exclusão bloqueada com dependências (HTTP 422) | Aluno, Curso, Disciplina, Turma | Unitário |
 
 ## Documentação da API
 
 - **Swagger UI:** http://localhost:8080/swagger-ui.html
 - **OpenAPI JSON:** http://localhost:8080/v3/api-docs
+
+Principais filtros de listagem:
+
+| Endpoint | Filtros |
+|----------|---------|
+| `GET /api/matriculas` | `status` (PENDENTE, CONFIRMADA, CANCELADA) |
+| `GET /api/turmas` | `status` (ABERTA, FECHADA), `lotada=true`, `q` (código, professor, disciplina) |
+| `GET /api/alunos` | `q` (nome, email, CPF) |
+| `GET /api/cursos` | `q` (nome) |
+| `GET /api/disciplinas` | `q` (nome, curso) |
+
+Todos aceitam também `page`, `size` e `sort`.
 
 ## Tecnologias Utilizadas
 
@@ -186,7 +206,7 @@ O backend segue uma separação clara de responsabilidades:
 - **Controller:** Recebe requisições HTTP, valida entrada (Bean Validation), delega para service e retorna DTOs.
 - **Service:** Contém a lógica de negócio e orquestração. Todas as regras de matrícula (RN01-RN07) estão nesta camada.
 - **Domain/Model:** Entidades JPA com métodos de domínio (ex: `temVagasDisponiveis()`, `isAberta()`).
-- **Repository:** Interfaces Spring Data JPA para acesso a dados.
+- **Repository:** Interfaces Spring Data JPA com `JpaSpecificationExecutor` para filtros e busca textual (`q`).
 - **DTO:** Records Java para request/response, desacoplados das entidades.
 - **Validation:** Anotações customizadas de Bean Validation (`@Cpf`) para regras específicas.
 
@@ -207,6 +227,10 @@ Confirmar uma matrícula já CONFIRMADA ou cancelar uma já CANCELADA retorna su
 
 Os endpoints DELETE de Aluno, Curso, Disciplina e Turma também são idempotentes: excluir um recurso inexistente retorna HTTP 204 sem erro.
 
+### Exclusão com dependências
+
+Antes de excluir, o service verifica vínculos (FK) e retorna HTTP 422 com mensagem objetiva (ex.: `Curso possui disciplinas vinculadas.`). Como rede de segurança, o `GlobalExceptionHandler` também trata `DataIntegrityViolationException` (HTTP 409) mapeando as constraints conhecidas.
+
 ### Liquibase para Migrations
 
 O controle de schema é feito exclusivamente pelo Liquibase. O Hibernate está configurado com `ddl-auto: validate` para garantir alinhamento entre entidades e banco.
@@ -219,9 +243,26 @@ Todo o stack sobe via Docker Compose:
 - **backend:** imagem multi-stage (Maven build + JRE 25)
 - **frontend:** imagem multi-stage (Angular build + Nginx), com proxy de `/api` para o backend
 
-### Validação de CPF com Dígitos Verificadores
+### Validação e máscara de CPF
 
-O CPF é validado com algoritmo completo de dígitos verificadores (mod 11), tanto no backend (`@Cpf` — anotação customizada de Bean Validation) quanto no frontend (diretiva Angular `cpfValidator`). CPFs com todos os dígitos iguais ou com dígitos verificadores incorretos são rejeitados com HTTP 400 e feedback visual no formulário.
+O CPF é validado com algoritmo completo de dígitos verificadores (mod 11), tanto no backend (`@Cpf`) quanto no frontend (diretiva `cpfValidator`). No formulário, a máscara `000.000.000-00` é aplicada na digitação; o envio à API é feito apenas com dígitos.
+
+### Selects pesquisáveis e paginados
+
+Dropdowns de aluno, turma, disciplina e curso usam o componente `app-searchable-select` com:
+
+- Busca server-side via parâmetro `q` (debounce de 300 ms)
+- Paginação sob demanda (scroll infinito / “Carregar mais”, páginas de 10 itens)
+- Navegação por teclado e scroll do item destacado
+- Label do item selecionado preservada na edição (mesmo fora da primeira página)
+
+### Filtros avançados (D02)
+
+Além do filtro obrigatório de status em matrículas, a listagem de turmas aceita filtros adicionais via Specification:
+
+```
+GET /api/turmas?status=ABERTA&lotada=true&q=WEB&page=0&size=10
+```
 
 ### Maven Wrapper
 
@@ -233,8 +274,12 @@ O frontend Angular 22 utiliza:
 - Standalone components (padrão do Angular 22)
 - Services dedicados para cada entidade
 - Tratamento centralizado de erros da API
-- Validação de CPF client-side com diretiva customizada
-- Filtro por status e paginação na tela de matrículas
+- Validação e máscara de CPF client-side
+- Calendário e formatação de datas em português
+- Selects pesquisáveis e paginados (busca `q` + carregamento sob demanda)
+- Tela de matrículas: filtro por status, consulta por aluno/turma e paginação
+- Tela de turmas: filtro por status (ABERTA/FECHADA) e por turmas lotadas; status editável no CRUD
+- Listagens paginadas em todas as entidades (page size 10)
 
 ### Logs Estruturados (D03)
 
@@ -274,14 +319,14 @@ As regras de matrícula são testadas em dois níveis:
 - **Unitários (`MatriculaServiceTest`):** 12 cenários com Mockito, cobrindo todos os caminhos de sucesso e erro de RN01 a RN07.
 - **Integração (`MatriculaIntegrationTest`):** 6 cenários end-to-end com `TestRestTemplate` e banco H2, validando persistência e respostas HTTP.
 
-As demais entidades (Aluno, Curso, Disciplina, Turma) também possuem testes unitários de service e testes de integração end-to-end, cobrindo CRUD, validações e cenários de erro (recurso inexistente, duplicidade, campos obrigatórios).
+As demais entidades (Aluno, Curso, Disciplina, Turma) também possuem testes unitários de service e testes de integração end-to-end, cobrindo CRUD, validações, exclusão com dependências e cenários de erro (recurso inexistente, duplicidade, campos obrigatórios).
 
 ## Limitações Conhecidas
 
 - Frontend sem testes automatizados (priorizados os testes do backend por serem críticos na avaliação).
 - Sem CI/CD configurado (diferencial D01).
 - Sem eventos de domínio (diferencial D04).
-- Sem tratamento de soft delete em cascata (deletar entidades com dependências pode falhar).
+- Exclusão não é em cascata: registros com vínculos devem ser removidos na ordem correta; a API bloqueia a exclusão e informa o tipo de vínculo.
 
 ## Uso de IA
 
@@ -295,5 +340,5 @@ As demais entidades (Aluno, Curso, Disciplina, Turma) também possuem testes uni
   - Compose/Dockerfiles - backend depende do healthcheck do banco; frontend usa Nginx com proxy `/api`.
 - **Trechos mais críticos:**
   - `MatriculaService.confirmar()` e `MatriculaService.cancelar()` - regras de consumo/liberação de vaga.
-  - `GlobalExceptionHandler` - padronização de respostas de erro.
+  - `GlobalExceptionHandler` - padronização de respostas de erro (incluindo FK/integridade).
   - `MatriculaServiceTest` - cobertura dos 12 cenários obrigatórios.

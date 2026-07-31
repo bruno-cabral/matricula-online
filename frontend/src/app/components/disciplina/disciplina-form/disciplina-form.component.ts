@@ -1,14 +1,17 @@
-import { ChangeDetectorRef, Component, OnInit, computed, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { map } from 'rxjs/operators';
 import { DisciplinaService } from '../../../services/disciplina.service';
 import { CursoService } from '../../../services/curso.service';
 import { NotificationService } from '../../../services/notification.service';
 import { handleApiError } from '../../../services/api-error-handler';
 import { DisciplinaRequest } from '../../../models/disciplina.model';
-import { Curso } from '../../../models/curso.model';
-import { SearchableSelectComponent } from '../../../shared/searchable-select/searchable-select.component';
+import {
+  SearchableSelectComponent,
+  SearchableSelectFetcher
+} from '../../../shared/searchable-select/searchable-select.component';
 
 @Component({
   selector: 'app-disciplina-form',
@@ -42,7 +45,8 @@ import { SearchableSelectComponent } from '../../../shared/searchable-select/sea
               inputId="cursoUuid"
               name="cursoUuid"
               [(ngModel)]="disciplina.cursoUuid"
-              [options]="cursoOptions()"
+              [fetcher]="fetchCursos"
+              [selectedLabel]="cursoLabel()"
               placeholder="Buscar curso..."
               required
             />
@@ -59,13 +63,18 @@ import { SearchableSelectComponent } from '../../../shared/searchable-select/sea
 })
 export class DisciplinaFormComponent implements OnInit {
   disciplina: DisciplinaRequest = { nome: '', descricao: '', cargaHoraria: 0, cursoUuid: '' };
-  cursos = signal<Curso[]>([]);
+  cursoLabel = signal('');
   isEditing = false;
   private uuid: string | null = null;
 
-  cursoOptions = computed(() =>
-    this.cursos().map(c => ({ value: c.uuid, label: c.nome }))
-  );
+  readonly fetchCursos: SearchableSelectFetcher = ({ page, size, query }) =>
+    this.cursoService.listar(page, size, 'nome,asc', query || undefined).pipe(
+      map(res => ({
+        content: res.content.map(c => ({ value: c.uuid, label: c.nome })),
+        page: res.page,
+        totalPages: res.totalPages
+      }))
+    );
 
   constructor(
     private disciplinaService: DisciplinaService,
@@ -77,20 +86,18 @@ export class DisciplinaFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.cursoService.listar(0, 100).subscribe({
-      next: (data) => this.cursos.set(data.content),
-      error: (err) => handleApiError(err, this.notification)
-    });
-
     this.uuid = this.route.snapshot.paramMap.get('uuid');
     if (this.uuid) {
       this.isEditing = true;
       this.disciplinaService.buscarPorUuid(this.uuid).subscribe({
         next: (data) => {
           this.disciplina = {
-            nome: data.nome, descricao: data.descricao,
-            cargaHoraria: data.cargaHoraria, cursoUuid: data.cursoUuid
+            nome: data.nome,
+            descricao: data.descricao,
+            cargaHoraria: data.cargaHoraria,
+            cursoUuid: data.cursoUuid
           };
+          this.cursoLabel.set(data.cursoNome);
           this.cdr.markForCheck();
         },
         error: (err) => handleApiError(err, this.notification)

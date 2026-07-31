@@ -153,7 +153,7 @@ class DisciplinaServiceTest {
         assertThatThrownBy(() -> disciplinaService.deletar(disciplina.getUuid()))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("turmas vinculadas");
-        verify(disciplinaRepository, never()).delete(any());
+        verify(disciplinaRepository, never()).delete(any(Disciplina.class));
     }
 
     @Test
@@ -164,6 +164,6 @@ class DisciplinaServiceTest {
 
         disciplinaService.deletar(uuid);
 
-        verify(disciplinaRepository, never()).delete(any());
+        verify(disciplinaRepository, never()).delete(any(Disciplina.class));
     }
 }

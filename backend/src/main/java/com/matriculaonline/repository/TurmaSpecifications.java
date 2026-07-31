@@ -13,7 +13,7 @@ public final class TurmaSpecifications {
     private TurmaSpecifications() {
     }
 
-    public static Specification<Turma> comFiltros(StatusTurma status, Boolean lotada) {
+    public static Specification<Turma> comFiltros(StatusTurma status, Boolean lotada, String q) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -23,6 +23,15 @@ public final class TurmaSpecifications {
 
             if (Boolean.TRUE.equals(lotada)) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("vagasOcupadas"), root.get("vagas")));
+            }
+
+            if (q != null && !q.isBlank()) {
+                String termo = "%" + q.trim().toLowerCase() + "%";
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("codigo")), termo),
+                        cb.like(cb.lower(root.get("professor")), termo),
+                        cb.like(cb.lower(root.get("disciplina").get("nome")), termo)
+                ));
             }
 
             return cb.and(predicates.toArray(Predicate[]::new));

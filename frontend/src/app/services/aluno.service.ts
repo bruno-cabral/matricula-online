@@ -10,11 +10,14 @@ export class AlunoService {
 
   constructor(private http: HttpClient) {}
 
-  listar(page = 0, size = 10, sort = 'nome,asc'): Observable<PageResponse<Aluno>> {
-    const params = new HttpParams()
+  listar(page = 0, size = 10, sort = 'nome,asc', q?: string): Observable<PageResponse<Aluno>> {
+    let params = new HttpParams()
       .set('page', page)
       .set('size', size)
       .set('sort', sort);
+    if (q) {
+      params = params.set('q', q);
+    }
     return this.http.get<PageResponse<Aluno>>(this.apiUrl, { params });
   }
 

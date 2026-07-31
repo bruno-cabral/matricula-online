@@ -30,8 +30,9 @@ public class AlunoController {
 
     @GetMapping
     public ResponseEntity<PageResponse<AlunoResponse>> listar(
+            @RequestParam(required = false) String q,
             @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(alunoService.listar(pageable));
+        return ResponseEntity.ok(alunoService.listar(q, pageable));
     }
 
     @GetMapping("/{uuid}")

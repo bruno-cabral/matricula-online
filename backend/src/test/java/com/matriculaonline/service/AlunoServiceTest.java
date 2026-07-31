@@ -155,7 +155,7 @@ class AlunoServiceTest {
         assertThatThrownBy(() -> alunoService.deletar(aluno.getUuid()))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("matrículas vinculadas");
-        verify(alunoRepository, never()).delete(any());
+        verify(alunoRepository, never()).delete(any(Aluno.class));
     }
 
     @Test
@@ -166,6 +166,6 @@ class AlunoServiceTest {
 
         alunoService.deletar(uuid);
 
-        verify(alunoRepository, never()).delete(any());
+        verify(alunoRepository, never()).delete(any(Aluno.class));
     }
 }

@@ -33,8 +33,9 @@ public class TurmaController {
     public ResponseEntity<PageResponse<TurmaResponse>> listar(
             @RequestParam(required = false) StatusTurma status,
             @RequestParam(required = false) Boolean lotada,
+            @RequestParam(required = false) String q,
             @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(turmaService.listar(status, lotada, pageable));
+        return ResponseEntity.ok(turmaService.listar(status, lotada, q, pageable));
     }
 
     @GetMapping("/{uuid}")

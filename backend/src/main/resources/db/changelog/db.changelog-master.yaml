@@ -13,3 +13,5 @@ databaseChangeLog:
       file: db/changelog/changes/006-seed-dados-iniciais.yaml
   - include:
       file: db/changelog/changes/007-corrigir-cpfs-validos.yaml
+  - include:
+      file: db/changelog/changes/008-seed-dados-paginacao.yaml

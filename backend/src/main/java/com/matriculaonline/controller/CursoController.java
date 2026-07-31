@@ -30,8 +30,9 @@ public class CursoController {
 
     @GetMapping
     public ResponseEntity<PageResponse<CursoResponse>> listar(
+            @RequestParam(required = false) String q,
             @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(cursoService.listar(pageable));
+        return ResponseEntity.ok(cursoService.listar(q, pageable));
     }
 
     @GetMapping("/{uuid}")

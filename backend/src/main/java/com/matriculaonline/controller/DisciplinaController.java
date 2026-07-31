@@ -30,8 +30,9 @@ public class DisciplinaController {
 
     @GetMapping
     public ResponseEntity<PageResponse<DisciplinaResponse>> listar(
+            @RequestParam(required = false) String q,
             @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(disciplinaService.listar(pageable));
+        return ResponseEntity.ok(disciplinaService.listar(q, pageable));
     }
 
     @GetMapping("/{uuid}")

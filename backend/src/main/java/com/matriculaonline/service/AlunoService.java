@@ -8,6 +8,7 @@ import com.matriculaonline.dto.request.AlunoRequest;
 import com.matriculaonline.dto.response.AlunoResponse;
 import com.matriculaonline.dto.response.PageResponse;
 import com.matriculaonline.repository.AlunoRepository;
+import com.matriculaonline.repository.AlunoSpecifications;
 import com.matriculaonline.repository.MatriculaRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -44,8 +45,11 @@ public class AlunoService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<AlunoResponse> listar(Pageable pageable) {
-        return PageResponse.from(alunoRepository.findAll(pageable), AlunoResponse::fromEntity);
+    public PageResponse<AlunoResponse> listar(String q, Pageable pageable) {
+        return PageResponse.from(
+                alunoRepository.findAll(AlunoSpecifications.comBusca(q), pageable),
+                AlunoResponse::fromEntity
+        );
     }
 
     @Transactional(readOnly = true)

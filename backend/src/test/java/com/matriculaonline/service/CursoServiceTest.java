@@ -128,7 +128,7 @@ class CursoServiceTest {
         assertThatThrownBy(() -> cursoService.deletar(curso.getUuid()))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("disciplinas vinculadas");
-        verify(cursoRepository, never()).delete(any());
+        verify(cursoRepository, never()).delete(any(Curso.class));
     }
 
     @Test
@@ -139,6 +139,6 @@ class CursoServiceTest {
 
         cursoService.deletar(uuid);
 
-        verify(cursoRepository, never()).delete(any());
+        verify(cursoRepository, never()).delete(any(Curso.class));
     }
 }

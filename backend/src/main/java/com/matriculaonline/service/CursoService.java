@@ -7,6 +7,7 @@ import com.matriculaonline.dto.request.CursoRequest;
 import com.matriculaonline.dto.response.CursoResponse;
 import com.matriculaonline.dto.response.PageResponse;
 import com.matriculaonline.repository.CursoRepository;
+import com.matriculaonline.repository.CursoSpecifications;
 import com.matriculaonline.repository.DisciplinaRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -35,8 +36,11 @@ public class CursoService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<CursoResponse> listar(Pageable pageable) {
-        return PageResponse.from(cursoRepository.findAll(pageable), CursoResponse::fromEntity);
+    public PageResponse<CursoResponse> listar(String q, Pageable pageable) {
+        return PageResponse.from(
+                cursoRepository.findAll(CursoSpecifications.comBusca(q), pageable),
+                CursoResponse::fromEntity
+        );
     }
 
     @Transactional(readOnly = true)

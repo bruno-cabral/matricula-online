@@ -54,9 +54,9 @@ public class TurmaService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<TurmaResponse> listar(StatusTurma status, Boolean lotada, Pageable pageable) {
+    public PageResponse<TurmaResponse> listar(StatusTurma status, Boolean lotada, String q, Pageable pageable) {
         return PageResponse.from(
-                turmaRepository.findAll(TurmaSpecifications.comFiltros(status, lotada), pageable),
+                turmaRepository.findAll(TurmaSpecifications.comFiltros(status, lotada, q), pageable),
                 TurmaResponse::fromEntity
         );
     }

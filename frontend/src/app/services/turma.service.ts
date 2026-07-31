@@ -7,6 +7,7 @@ import { PageResponse } from '../models/page.model';
 export interface TurmaListFilters {
   status?: string;
   lotada?: boolean;
+  q?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -31,6 +32,9 @@ export class TurmaService {
     }
     if (filters.lotada) {
       params = params.set('lotada', 'true');
+    }
+    if (filters.q) {
+      params = params.set('q', filters.q);
     }
 
     return this.http.get<PageResponse<Turma>>(this.apiUrl, { params });

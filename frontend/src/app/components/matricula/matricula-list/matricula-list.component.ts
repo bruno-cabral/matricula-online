@@ -1,18 +1,20 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { map } from 'rxjs/operators';
 import { MatriculaService } from '../../../services/matricula.service';
 import { AlunoService } from '../../../services/aluno.service';
 import { TurmaService } from '../../../services/turma.service';
 import { NotificationService } from '../../../services/notification.service';
 import { handleApiError } from '../../../services/api-error-handler';
 import { Matricula } from '../../../models/matricula.model';
-import { Aluno } from '../../../models/aluno.model';
-import { Turma } from '../../../models/turma.model';
 import { PageResponse } from '../../../models/page.model';
 import { SortState, sortIndicator, toggleSort, toSortParam } from '../../../shared/sort.util';
-import { SearchableSelectComponent } from '../../../shared/searchable-select/searchable-select.component';
+import {
+  SearchableSelectComponent,
+  SearchableSelectFetcher
+} from '../../../shared/searchable-select/searchable-select.component';
 
 type ConsultaTipo = 'todas' | 'aluno' | 'turma';
 
@@ -42,7 +44,8 @@ type ConsultaTipo = 'todas' | 'aluno' | 'turma';
             <label for="alunoUuid">Aluno:</label>
             <app-searchable-select
               inputId="alunoUuid"
-              [options]="alunoOptions()"
+              [fetcher]="fetchAlunos"
+              [selectedLabel]="alunoLabel()"
               [ngModel]="alunoUuid()"
               (ngModelChange)="alterarAluno($event)"
               placeholder="Buscar aluno..."
@@ -55,7 +58,8 @@ type ConsultaTipo = 'todas' | 'aluno' | 'turma';
             <label for="turmaUuid">Turma:</label>
             <app-searchable-select
               inputId="turmaUuid"
-              [options]="turmaOptions()"
+              [fetcher]="fetchTurmas"
+              [selectedLabel]="turmaLabel()"
               [ngModel]="turmaUuid()"
               (ngModelChange)="alterarTurma($event)"
               placeholder="Buscar turma..."
@@ -148,16 +152,30 @@ export class MatriculaListComponent implements OnInit {
   consultaTipo = signal<ConsultaTipo>('todas');
   alunoUuid = signal('');
   turmaUuid = signal('');
-  alunos = signal<Aluno[]>([]);
-  turmas = signal<Turma[]>([]);
+  alunoLabel = signal('');
+  turmaLabel = signal('');
   sort = signal<SortState>({ field: 'dataMatricula', direction: 'desc' });
 
-  alunoOptions = computed(() =>
-    this.alunos().map(a => ({ value: a.uuid, label: `${a.nome} (${a.email})` }))
-  );
-  turmaOptions = computed(() =>
-    this.turmas().map(t => ({ value: t.uuid, label: `${t.codigo} — ${t.disciplinaNome}` }))
-  );
+  readonly fetchAlunos: SearchableSelectFetcher = ({ page, size, query }) =>
+    this.alunoService.listar(page, size, 'nome,asc', query || undefined).pipe(
+      map(res => ({
+        content: res.content.map(a => ({ value: a.uuid, label: `${a.nome} (${a.email})` })),
+        page: res.page,
+        totalPages: res.totalPages
+      }))
+    );
+
+  readonly fetchTurmas: SearchableSelectFetcher = ({ page, size, query }) =>
+    this.turmaService.listar(page, size, 'codigo,asc', { q: query || undefined }).pipe(
+      map(res => ({
+        content: res.content.map(t => ({
+          value: t.uuid,
+          label: `${t.codigo} — ${t.disciplinaNome}`
+        })),
+        page: res.page,
+        totalPages: res.totalPages
+      }))
+    );
 
   constructor(
     private matriculaService: MatriculaService,
@@ -169,16 +187,6 @@ export class MatriculaListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.alunoService.listar(0, 100, 'nome,asc').subscribe({
-      next: (data) => this.alunos.set(data.content),
-      error: (err) => handleApiError(err, this.notification)
-    });
-
-    this.turmaService.listar(0, 100, 'codigo,asc').subscribe({
-      next: (data) => this.turmas.set(data.content),
-      error: (err) => handleApiError(err, this.notification)
-    });
-
     const params = this.route.snapshot.queryParamMap;
     const aluno = params.get('alunoUuid');
     const turma = params.get('turmaUuid');
@@ -186,9 +194,17 @@ export class MatriculaListComponent implements OnInit {
     if (aluno) {
       this.consultaTipo.set('aluno');
       this.alunoUuid.set(aluno);
+      this.alunoService.buscarPorUuid(aluno).subscribe({
+        next: (a) => this.alunoLabel.set(`${a.nome} (${a.email})`),
+        error: (err) => handleApiError(err, this.notification)
+      });
     } else if (turma) {
       this.consultaTipo.set('turma');
       this.turmaUuid.set(turma);
+      this.turmaService.buscarPorUuid(turma).subscribe({
+        next: (t) => this.turmaLabel.set(`${t.codigo} — ${t.disciplinaNome}`),
+        error: (err) => handleApiError(err, this.notification)
+      });
     }
 
     this.carregar();
@@ -248,16 +264,20 @@ export class MatriculaListComponent implements OnInit {
     if (tipo === 'todas') {
       this.alunoUuid.set('');
       this.turmaUuid.set('');
+      this.alunoLabel.set('');
+      this.turmaLabel.set('');
       this.atualizarQueryParams();
       this.carregar();
     } else if (tipo === 'aluno') {
       this.turmaUuid.set('');
+      this.turmaLabel.set('');
       this.atualizarQueryParams();
       if (this.alunoUuid()) {
         this.carregar();
       }
     } else {
       this.alunoUuid.set('');
+      this.alunoLabel.set('');
       this.atualizarQueryParams();
       if (this.turmaUuid()) {
         this.carregar();

@@ -2,20 +2,36 @@ import {
   Component,
   ElementRef,
   HostListener,
-  forwardRef,
-  input,
-  signal,
+  OnDestroy,
   computed,
-  inject
+  effect,
+  forwardRef,
+  inject,
+  input,
+  signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Observable, Subject, Subscription, of } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, finalize, switchMap, tap } from 'rxjs/operators';
 
 export interface SearchableSelectOption {
   value: string;
   label: string;
   disabled?: boolean;
 }
+
+export interface SearchableSelectPage {
+  content: SearchableSelectOption[];
+  page: number;
+  totalPages: number;
+}
+
+export type SearchableSelectFetcher = (request: {
+  page: number;
+  size: number;
+  query: string;
+}) => Observable<SearchableSelectPage>;
 
 @Component({
   selector: 'app-searchable-select',
@@ -48,11 +64,16 @@ export interface SearchableSelectOption {
       <span class="searchable-select-chevron" aria-hidden="true">▾</span>
 
       @if (open()) {
-        <ul [id]="listId" class="searchable-select-dropdown" role="listbox">
-          @if (filteredOptions().length === 0) {
+        <ul
+          [id]="listId"
+          class="searchable-select-dropdown"
+          role="listbox"
+          (scroll)="onScroll($event)"
+        >
+          @if (options().length === 0 && !loading()) {
             <li class="searchable-select-empty">Nenhum resultado</li>
           } @else {
-            @for (opt of filteredOptions(); track opt.value; let i = $index) {
+            @for (opt of options(); track opt.value; let i = $index) {
               <li
                 role="option"
                 [class.active]="i === highlightedIndex()"
@@ -67,45 +88,83 @@ export interface SearchableSelectOption {
               </li>
             }
           }
+
+          @if (loading()) {
+            <li class="searchable-select-status">Carregando...</li>
+          } @else if (hasMore() && options().length > 0) {
+            <li class="searchable-select-status searchable-select-more" (mousedown)="carregarMais($event)">
+              Carregar mais
+            </li>
+          }
         </ul>
       }
     </div>
   `
 })
-export class SearchableSelectComponent implements ControlValueAccessor {
+export class SearchableSelectComponent implements ControlValueAccessor, OnDestroy {
   private readonly host = inject(ElementRef<HTMLElement>);
 
-  options = input<SearchableSelectOption[]>([]);
+  fetcher = input.required<SearchableSelectFetcher>();
+  selectedLabel = input('');
   placeholder = input('Selecione...');
   inputId = input('');
+  pageSize = input(10);
 
   value = signal('');
   open = signal(false);
   query = signal('');
   disabled = signal(false);
   highlightedIndex = signal(0);
+  options = signal<SearchableSelectOption[]>([]);
+  loading = signal(false);
+  currentPage = signal(0);
+  totalPages = signal(0);
+  private labelCache = signal('');
 
   readonly listId = `searchable-list-${Math.random().toString(36).slice(2, 9)}`;
 
   private onChange: (value: string) => void = () => {};
   private onTouched: () => void = () => {};
+  private readonly search$ = new Subject<string>();
+  private searchSub?: Subscription;
+  private loadSub?: Subscription;
+  private requestSeq = 0;
 
-  filteredOptions = computed(() => {
-    const q = this.normalize(this.query());
-    const opts = this.options();
-    if (!q) {
-      return opts;
-    }
-    return opts.filter(o => this.normalize(o.label).includes(q));
-  });
+  hasMore = computed(() => this.currentPage() + 1 < this.totalPages());
 
   displayValue = computed(() => {
     if (this.open()) {
       return this.query();
     }
-    const selected = this.options().find(o => o.value === this.value());
-    return selected?.label ?? '';
+    const selected = this.options().find((o: SearchableSelectOption) => o.value === this.value());
+    return selected?.label || this.labelCache() || this.selectedLabel() || '';
   });
+
+  constructor() {
+    this.searchSub = this.search$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      tap((query: string) => {
+        this.query.set(query);
+        this.currentPage.set(0);
+        this.options.set([]);
+        this.highlightedIndex.set(0);
+      }),
+      switchMap((query: string) => this.fetchPage(0, query, false))
+    ).subscribe();
+
+    effect(() => {
+      const label = this.selectedLabel();
+      if (label) {
+        this.labelCache.set(label);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.searchSub?.unsubscribe();
+    this.loadSub?.unsubscribe();
+  }
 
   writeValue(value: string | null): void {
     this.value.set(value ?? '');
@@ -124,7 +183,6 @@ export class SearchableSelectComponent implements ControlValueAccessor {
     this.disabled.set(isDisabled);
   }
 
-  /** Clique no campo já focado (focus não dispara de novo) — reabre a lista. */
   onTriggerClick(): void {
     if (this.disabled() || this.open()) {
       return;
@@ -138,16 +196,34 @@ export class SearchableSelectComponent implements ControlValueAccessor {
     }
     this.open.set(true);
     this.query.set('');
-    this.highlightedIndex.set(this.indexOfSelected());
-    this.scrollHighlightedIntoView();
+    this.currentPage.set(0);
+    this.options.set([]);
+    this.highlightedIndex.set(0);
+    this.loadSub?.unsubscribe();
+    this.loadSub = this.fetchPage(0, '', false).subscribe();
   }
 
   onInput(event: Event): void {
     const text = (event.target as HTMLInputElement).value;
-    this.query.set(text);
     this.open.set(true);
-    this.highlightedIndex.set(0);
-    this.scrollHighlightedIntoView();
+    this.search$.next(text);
+  }
+
+  onScroll(event: Event): void {
+    const el = event.target as HTMLElement;
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 32) {
+      this.carregarMais();
+    }
+  }
+
+  carregarMais(event?: Event): void {
+    event?.preventDefault();
+    if (this.loading() || !this.hasMore()) {
+      return;
+    }
+    const next = this.currentPage() + 1;
+    this.loadSub?.unsubscribe();
+    this.loadSub = this.fetchPage(next, this.query(), true).subscribe();
   }
 
   onKeydown(event: KeyboardEvent): void {
@@ -155,15 +231,19 @@ export class SearchableSelectComponent implements ControlValueAccessor {
       return;
     }
 
-    const filtered = this.filteredOptions();
+    const opts = this.options();
 
     switch (event.key) {
       case 'ArrowDown':
         event.preventDefault();
         if (!this.open()) {
           this.abrir();
-        } else if (filtered.length > 0) {
-          this.highlightedIndex.set(Math.min(this.highlightedIndex() + 1, filtered.length - 1));
+        } else if (opts.length > 0) {
+          const next = Math.min(this.highlightedIndex() + 1, opts.length - 1);
+          this.highlightedIndex.set(next);
+          if (next >= opts.length - 3) {
+            this.carregarMais();
+          }
           this.scrollHighlightedIntoView();
         }
         break;
@@ -178,8 +258,8 @@ export class SearchableSelectComponent implements ControlValueAccessor {
         break;
       case 'Enter':
         event.preventDefault();
-        if (this.open() && filtered[this.highlightedIndex()]) {
-          this.selecionar(filtered[this.highlightedIndex()]);
+        if (this.open() && opts[this.highlightedIndex()]) {
+          this.selecionar(opts[this.highlightedIndex()]);
         } else {
           this.abrir();
         }
@@ -194,24 +274,13 @@ export class SearchableSelectComponent implements ControlValueAccessor {
     }
   }
 
-  private scrollHighlightedIntoView(): void {
-    const index = this.highlightedIndex();
-    // Aguarda o Angular atualizar o DOM (abrir lista / classe active)
-    setTimeout(() => {
-      const items = this.host.nativeElement.querySelectorAll(
-        '.searchable-select-dropdown li[role="option"]'
-      );
-      const active = items.item(index) as HTMLElement | null;
-      active?.scrollIntoView({ block: 'nearest' });
-    });
-  }
-
   selecionar(opt: SearchableSelectOption, event?: Event): void {
     event?.preventDefault();
     if (opt.disabled) {
       return;
     }
     this.value.set(opt.value);
+    this.labelCache.set(opt.label);
     this.query.set('');
     this.onChange(opt.value);
     this.onTouched();
@@ -223,6 +292,49 @@ export class SearchableSelectComponent implements ControlValueAccessor {
     if (!this.host.nativeElement.contains(event.target as Node)) {
       this.fechar(true);
     }
+  }
+
+  private fetchPage(page: number, query: string, append: boolean): Observable<SearchableSelectPage> {
+    const seq = ++this.requestSeq;
+    this.loading.set(true);
+
+    return this.fetcher()({ page, size: this.pageSize(), query }).pipe(
+      tap((result: SearchableSelectPage) => {
+        if (seq !== this.requestSeq) {
+          return;
+        }
+        this.currentPage.set(result.page);
+        this.totalPages.set(result.totalPages);
+        this.options.set(append ? [...this.options(), ...result.content] : result.content);
+        if (!append) {
+          this.highlightedIndex.set(this.indexOfSelected());
+          this.scrollHighlightedIntoView();
+        }
+      }),
+      catchError(() => {
+        if (seq === this.requestSeq && !append) {
+          this.options.set([]);
+          this.totalPages.set(0);
+        }
+        return of({ content: [], page, totalPages: 0 });
+      }),
+      finalize(() => {
+        if (seq === this.requestSeq) {
+          this.loading.set(false);
+        }
+      })
+    );
+  }
+
+  private scrollHighlightedIntoView(): void {
+    const index = this.highlightedIndex();
+    setTimeout(() => {
+      const items = this.host.nativeElement.querySelectorAll(
+        '.searchable-select-dropdown li[role="option"]'
+      );
+      const active = items.item(index) as HTMLElement | null;
+      active?.scrollIntoView({ block: 'nearest' });
+    });
   }
 
   private fechar(fromOutside = false): void {
@@ -237,15 +349,7 @@ export class SearchableSelectComponent implements ControlValueAccessor {
   }
 
   private indexOfSelected(): number {
-    const idx = this.filteredOptions().findIndex(o => o.value === this.value());
+    const idx = this.options().findIndex((o: SearchableSelectOption) => o.value === this.value());
     return idx >= 0 ? idx : 0;
-  }
-
-  private normalize(text: string): string {
-    return text
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .trim();
   }
 }

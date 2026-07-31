@@ -1,14 +1,17 @@
-import { ChangeDetectorRef, Component, OnInit, computed, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { map } from 'rxjs/operators';
 import { TurmaService } from '../../../services/turma.service';
 import { DisciplinaService } from '../../../services/disciplina.service';
 import { NotificationService } from '../../../services/notification.service';
 import { handleApiError } from '../../../services/api-error-handler';
 import { TurmaRequest } from '../../../models/turma.model';
-import { Disciplina } from '../../../models/disciplina.model';
-import { SearchableSelectComponent } from '../../../shared/searchable-select/searchable-select.component';
+import {
+  SearchableSelectComponent,
+  SearchableSelectFetcher
+} from '../../../shared/searchable-select/searchable-select.component';
 
 @Component({
   selector: 'app-turma-form',
@@ -32,7 +35,8 @@ import { SearchableSelectComponent } from '../../../shared/searchable-select/sea
               inputId="disciplinaUuid"
               name="disciplinaUuid"
               [(ngModel)]="turma.disciplinaUuid"
-              [options]="disciplinaOptions()"
+              [fetcher]="fetchDisciplinas"
+              [selectedLabel]="disciplinaLabel()"
               placeholder="Buscar disciplina..."
               required
             />
@@ -81,13 +85,21 @@ export class TurmaFormComponent implements OnInit {
     vagas: 1,
     status: 'ABERTA'
   };
-  disciplinas = signal<Disciplina[]>([]);
+  disciplinaLabel = signal('');
   isEditing = false;
   private uuid: string | null = null;
 
-  disciplinaOptions = computed(() =>
-    this.disciplinas().map(d => ({ value: d.uuid, label: `${d.nome} (${d.cursoNome})` }))
-  );
+  readonly fetchDisciplinas: SearchableSelectFetcher = ({ page, size, query }) =>
+    this.disciplinaService.listar(page, size, 'nome,asc', query || undefined).pipe(
+      map(res => ({
+        content: res.content.map(d => ({
+          value: d.uuid,
+          label: `${d.nome} (${d.cursoNome})`
+        })),
+        page: res.page,
+        totalPages: res.totalPages
+      }))
+    );
 
   constructor(
     private turmaService: TurmaService,
@@ -99,11 +111,6 @@ export class TurmaFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.disciplinaService.listar(0, 100).subscribe({
-      next: (data) => this.disciplinas.set(data.content),
-      error: (err) => handleApiError(err, this.notification)
-    });
-
     this.uuid = this.route.snapshot.paramMap.get('uuid');
     if (this.uuid) {
       this.isEditing = true;
@@ -117,6 +124,7 @@ export class TurmaFormComponent implements OnInit {
             vagas: data.vagas,
             status: data.status
           };
+          this.disciplinaLabel.set(data.disciplinaNome);
           this.cdr.markForCheck();
         },
         error: (err) => handleApiError(err, this.notification)
