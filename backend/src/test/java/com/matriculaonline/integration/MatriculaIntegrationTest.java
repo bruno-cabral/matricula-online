@@ -12,9 +12,17 @@ import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRe
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,6 +49,9 @@ class MatriculaIntegrationTest {
 
     @Autowired
     private MatriculaRepository matriculaRepository;
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
 
     private Aluno aluno;
     private Turma turma;
@@ -180,5 +191,105 @@ class MatriculaIntegrationTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).contains("ALG-2026-1");
+    }
+
+    @Test
+    @DisplayName("Concorrência da última vaga: duas confirmações simultâneas permitem apenas uma confirmação")
+    void concorrenciaUltimaVagaPermiteApenasUmaConfirmacao() throws Exception {
+        turma.setVagas(1);
+        turma.setVagasOcupadas(0);
+        turma.setStatus(StatusTurma.ABERTA);
+        turma = turmaRepository.saveAndFlush(turma);
+
+        Aluno aluno2 = new Aluno();
+        aluno2.setNome("Julia Rocha");
+        aluno2.setEmail("julia@email.com");
+        aluno2.setCpf("12345678909");
+        aluno2.setDataNascimento(LocalDate.of(2001, 8, 10));
+        aluno2 = alunoRepository.saveAndFlush(aluno2);
+
+        Matricula matricula1 = criarMatriculaPendente(aluno, turma);
+        Matricula matricula2 = criarMatriculaPendente(aluno2, turma);
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        CyclicBarrier barrier = new CyclicBarrier(2);
+
+        try {
+            Future<ResultadoConfirmacao> f1 = executor.submit(() -> confirmarConcorrente(matricula1.getUuid(), barrier));
+            Future<ResultadoConfirmacao> f2 = executor.submit(() -> confirmarConcorrente(matricula2.getUuid(), barrier));
+
+            ResultadoConfirmacao r1 = f1.get(10, TimeUnit.SECONDS);
+            ResultadoConfirmacao r2 = f2.get(10, TimeUnit.SECONDS);
+
+            List<ResultadoConfirmacao> resultados = Arrays.asList(r1, r2);
+            assertThat(resultados).containsExactlyInAnyOrder(
+                    ResultadoConfirmacao.CONFIRMADA,
+                    ResultadoConfirmacao.CONFLITO_OTIMISTA
+            );
+
+            Turma turmaAtualizada = turmaRepository.findByUuid(turma.getUuid()).orElseThrow();
+            assertThat(turmaAtualizada.getVagasOcupadas()).isEqualTo(1);
+
+            Matricula m1Atualizada = matriculaRepository.findByUuid(matricula1.getUuid()).orElseThrow();
+            Matricula m2Atualizada = matriculaRepository.findByUuid(matricula2.getUuid()).orElseThrow();
+
+            long confirmadas = List.of(m1Atualizada, m2Atualizada).stream()
+                    .filter(m -> m.getStatus() == StatusMatricula.CONFIRMADA)
+                    .count();
+            long pendentes = List.of(m1Atualizada, m2Atualizada).stream()
+                    .filter(m -> m.getStatus() == StatusMatricula.PENDENTE)
+                    .count();
+
+            assertThat(confirmadas).isEqualTo(1);
+            assertThat(pendentes).isEqualTo(1);
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    private Matricula criarMatriculaPendente(Aluno aluno, Turma turma) {
+        Matricula matricula = new Matricula();
+        matricula.setAluno(aluno);
+        matricula.setTurma(turma);
+        matricula.setStatus(StatusMatricula.PENDENTE);
+        return matriculaRepository.saveAndFlush(matricula);
+    }
+
+    private ResultadoConfirmacao confirmarConcorrente(UUID matriculaUuid, CyclicBarrier barrier) {
+        TransactionTemplate tx = new TransactionTemplate(transactionManager);
+        tx.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+
+        try {
+            return tx.execute(status -> {
+                Matricula matricula = matriculaRepository.findByUuid(matriculaUuid).orElseThrow();
+                Turma turmaDaMatricula = matricula.getTurma();
+
+                assertThat(turmaDaMatricula.temVagasDisponiveis()).isTrue();
+
+                try {
+                    barrier.await(5, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("Thread interrompida durante sincronização de concorrência", e);
+                } catch (BrokenBarrierException | TimeoutException e) {
+                    throw new IllegalStateException("Falha ao sincronizar confirmações concorrentes", e);
+                }
+
+                turmaDaMatricula.incrementarVagasOcupadas();
+                turmaRepository.saveAndFlush(turmaDaMatricula);
+
+                matricula.setStatus(StatusMatricula.CONFIRMADA);
+                matriculaRepository.saveAndFlush(matricula);
+
+                return ResultadoConfirmacao.CONFIRMADA;
+            });
+        } catch (ObjectOptimisticLockingFailureException ex) {
+            return ResultadoConfirmacao.CONFLITO_OTIMISTA;
+        }
+    }
+
+    private enum ResultadoConfirmacao {
+        CONFIRMADA,
+        CONFLITO_OTIMISTA
     }
 }
